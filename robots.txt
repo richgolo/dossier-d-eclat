@@ -6,4 +6,4 @@ Disallow: /cart/
 Disallow: /checkout/
 
 # Sitemap location
-Sitemap: https://www.dossierdeclat.com/sitemap.xml
+Sitemap: https://dossierdeclat.com/sitemap.xml
