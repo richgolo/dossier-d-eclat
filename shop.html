@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shop — Dossier d'Eclat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="cart.css">
+<style>
+  :root {
+    --brown:#2C1810;--brown-mid:#3D2218;--brown-light:#5C3426;
+    --pink:#F2C4CE;--pink-light:#FAE8EC;--pink-deep:#D4A0AE;
+    --pink-accent:#E8B4BF;--cream:#FDF5F0;
+    --serif:'Cormorant Garamond',Georgia,serif;--sans:'Jost',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--cream);color:var(--brown);font-family:var(--sans);font-weight:300;overflow-x:hidden}
+
+  /* NAV */
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--brown);display:flex;align-items:center;justify-content:space-between;padding:0 3rem;height:70px}
+  .nav-logo{font-family:var(--serif);font-size:1.4rem;font-style:italic;color:var(--pink);text-decoration:none}
+  .nav-links{display:flex;gap:2.5rem;list-style:none}
+  .nav-links a{color:var(--pink-deep);text-decoration:none;font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;font-weight:400;transition:color 0.3s}
+  .nav-links a:hover,.nav-links a.active{color:var(--pink)}
+  .nav-right{display:flex;align-items:center;gap:1rem}
+  .nav-wa{display:flex;align-items:center;gap:0.5rem;background:#25D366;color:white;border:none;padding:0.5rem 1.2rem;border-radius:50px;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;cursor:pointer;text-decoration:none;transition:all 0.3s;font-family:var(--sans)}
+  .nav-wa:hover{background:#1ebe5d;transform:translateY(-1px)}
+  .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px}
+  .hamburger span{display:block;width:22px;height:2px;background:var(--pink);border-radius:2px}
+  .mobile-menu{display:none;position:fixed;top:70px;left:0;right:0;z-index:99;background:var(--brown-mid);padding:1.5rem 2rem;border-top:1px solid rgba(242,196,206,0.1);flex-direction:column;gap:1.2rem}
+  .mobile-menu.open{display:flex}
+  .mobile-menu a{color:var(--pink-deep);text-decoration:none;font-size:0.85rem;letter-spacing:0.15em;text-transform:uppercase}
+
+  /* SHOP HERO */
+  .shop-hero{background:var(--brown);padding:9rem 3rem 4rem;text-align:center;position:relative;overflow:hidden}
+  .shop-hero::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;border:1px solid rgba(242,196,206,0.08);top:50%;left:50%;transform:translate(-50%,-50%)}
+  .shop-hero::after{content:'';position:absolute;width:800px;height:800px;border-radius:50%;border:1px solid rgba(242,196,206,0.05);top:50%;left:50%;transform:translate(-50%,-50%)}
+  .shop-hero-label{font-size:0.68rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--pink-deep);margin-bottom:0.8rem;position:relative;z-index:2}
+  .shop-hero-title{font-family:var(--serif);font-size:clamp(2.5rem,6vw,5rem);font-weight:300;font-style:italic;color:var(--pink);position:relative;z-index:2;margin-bottom:0.5rem}
+  .shop-hero-sub{font-size:0.72rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--pink-deep);opacity:0.7;position:relative;z-index:2}
+
+  /* STICKY FILTER */
+  .filter-bar{position:sticky;top:70px;z-index:50;background:var(--cream);border-bottom:1px solid var(--pink-light);padding:1rem 3rem}
+  .filter-inner{display:flex;gap:0.7rem;align-items:center;flex-wrap:wrap;max-width:1200px;margin:0 auto}
+  .filter-label{font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--brown-light);font-weight:500;margin-right:0.5rem}
+  .cat-tab{background:white;border:1px solid var(--pink-light);color:var(--brown-light);padding:0.45rem 1.1rem;border-radius:50px;font-size:0.68rem;letter-spacing:0.13em;text-transform:uppercase;font-family:var(--sans);cursor:pointer;font-weight:500;transition:all 0.3s}
+  .cat-tab.active,.cat-tab:hover{background:var(--brown);color:var(--pink);border-color:var(--brown)}
+  .product-count{margin-left:auto;font-size:0.72rem;color:var(--pink-deep);font-style:italic;white-space:nowrap}
+
+  /* GRID */
+  .shop-section{padding:3rem 3rem 6rem}
+  .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:1.8rem;max-width:1200px;margin:0 auto}
+
+  /* CARD */
+  .product-card{background:white;border-radius:20px;overflow:hidden;border:1px solid var(--pink-light);transition:transform 0.3s,box-shadow 0.3s}
+  .product-card:hover{transform:translateY(-6px);box-shadow:0 20px 50px rgba(44,24,16,0.12)}
+  .product-img{height:220px;background:var(--pink-light);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  .product-img img{width:100%;height:100%;object-fit:contain;padding:0.8rem;transition:transform 0.4s}
+  .product-card:hover .product-img img{transform:scale(1.06)}
+  .product-icon-fallback{font-size:3rem;display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+  .product-tag{position:absolute;top:0.8rem;right:0.8rem;background:var(--brown);color:var(--pink);font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;padding:0.25rem 0.7rem;border-radius:50px;font-weight:500;z-index:2}
+  .product-body{padding:1.3rem}
+  .product-brand{font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--pink-deep);margin-bottom:0.2rem;font-weight:500}
+  .product-name{font-family:var(--serif);font-size:1.1rem;font-style:italic;color:var(--brown);margin-bottom:0.35rem;line-height:1.3}
+  .product-desc{font-size:0.76rem;color:#9B7B73;line-height:1.55;margin-bottom:0.9rem}
+  .product-footer{display:flex;align-items:center;justify-content:space-between}
+  .product-price{font-family:var(--serif);font-size:1.05rem;color:var(--brown);font-weight:600}
+  .product-btn{background:var(--brown);color:var(--pink);border:none;padding:0.45rem 1rem;border-radius:50px;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);font-weight:500;transition:all 0.3s;text-decoration:none;display:inline-block}
+  .product-btn:hover{background:var(--brown-light);transform:scale(1.04)}
+
+  /* EMPTY STATE */
+  .empty-state{text-align:center;padding:4rem 2rem;grid-column:1/-1;display:none}
+  .empty-state p{font-family:var(--serif);font-size:1.3rem;font-style:italic;color:var(--pink-deep)}
+
+  /* FLOAT WA */
+  .float-wa{position:fixed;bottom:2rem;right:2rem;z-index:200;background:#25D366;color:white;width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;text-decoration:none;box-shadow:0 4px 20px rgba(37,211,102,0.4);transition:all 0.3s;animation:pulse-wa 2.5s ease-in-out infinite}
+  .float-wa:hover{transform:scale(1.1);animation:none}
+  @keyframes pulse-wa{0%,100%{box-shadow:0 4px 20px rgba(37,211,102,0.4)}50%{box-shadow:0 4px 30px rgba(37,211,102,0.7),0 0 0 8px rgba(37,211,102,0.08)}}
+  .float-wa-tooltip{position:absolute;right:70px;white-space:nowrap;background:var(--brown);color:var(--pink);font-size:0.72rem;padding:0.4rem 0.9rem;border-radius:50px;opacity:0;pointer-events:none;transition:opacity 0.3s;font-family:var(--sans)}
+  .float-wa:hover .float-wa-tooltip{opacity:1}
+
+  /* FOOTER */
+  footer{background:var(--brown);padding:3rem;text-align:center;border-top:1px solid rgba(242,196,206,0.1)}
+  .footer-bottom-strip{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;max-width:1200px;margin:0 auto}
+  .footer-bottom-strip p{font-size:0.72rem;color:rgba(242,196,206,0.3)}
+  .footer-back{font-family:var(--serif);font-size:1rem;font-style:italic;color:var(--pink-deep);text-decoration:none;transition:color 0.3s}
+  .footer-back:hover{color:var(--pink)}
+
+  @media(max-width:768px){nav{padding:0 1.5rem}.nav-links{display:none}.hamburger{display:flex}.shop-section{padding:2rem 1.5rem}.filter-bar{padding:0.8rem 1.5rem}.shop-hero{padding:8rem 1.5rem 3rem}}
+</style>
+</head>
+<body>
+
+<a href="https://wa.me/233551411783" target="_blank" class="float-wa">
+  <span class="float-wa-tooltip">Order on WhatsApp</span>💬
+</a>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">Dossier d'Eclat</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="shop.html" class="active">Shop</a></li>
+    <li><a href="index.html#reviews">Reviews</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="nav-cart-toggle" id="cartToggleBtn" aria-label="View Cart">
+      <span class="cart-icon-wrapper">🛒</span>
+      <span class="cart-badge" id="cartBadge" style="display:none">0</span>
+    </button>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html" onclick="closeMenu()">Home</a>
+  <a href="index.html#about" onclick="closeMenu()">About</a>
+  <a href="shop.html" onclick="closeMenu()">Shop</a>
+  <a href="index.html#reviews" onclick="closeMenu()">Reviews</a>
+  <a href="index.html#contact" onclick="closeMenu()">Contact</a>
+  <a href="#" id="mobileCartToggle" onclick="closeMenu()" class="mobile-cart-link">🛒 View Cart <span id="mobileCartBadge">(0)</span></a>
+  <a href="https://wa.me/233551411783" target="_blank" style="color:#25D366">💬 WhatsApp: 0551411783</a>
+</div>
+
+<!-- SHOP HERO -->
+<div class="shop-hero">
+  <p class="shop-hero-label">✦ Dossier d'Eclat</p>
+  <h1 class="shop-hero-title">The Collection</h1>
+  <p class="shop-hero-sub">Curated Beauty Finds · Order via WhatsApp</p>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <div class="filter-inner">
+    <span class="filter-label">Filter:</span>
+    <button class="cat-tab active" onclick="filterCat('all',this)">All</button>
+    <button class="cat-tab" onclick="filterCat('gloss',this)">Lip Glosses</button>
+    <button class="cat-tab" onclick="filterCat('liner',this)">Lip Liners</button>
+    <button class="cat-tab" onclick="filterCat('balm',this)">Lip Balms</button>
+    <button class="cat-tab" onclick="filterCat('brow',this)">Brows</button>
+    <button class="cat-tab" onclick="filterCat('fragrance',this)">Fragrance</button>
+    <button class="cat-tab" onclick="filterCat('wipes',this)">Wipes & Care</button>
+    <span class="product-count" id="productCount">25 products</span>
+  </div>
+</div>
+
+<!-- PRODUCTS -->
+<section class="shop-section">
+  <div class="products-grid" id="productsGrid">
+
+    <!-- ── LIP GLOSSES ── -->
+    <div class="product-card" data-cat="gloss">
+      <div class="product-img" style="background:#F5EDE8">
+        <img src="https://i5.walmartimages.com/seo/NYX-Professional-Makeup-Butter-Gloss-Non-Sticky-Lip-Gloss-Spiked-Toffee-0-27-Oz_b4a01f85-3585-42c5-a012-374bbe2086af.405cad3e74451539e6178ba5e6fd53ee.jpeg" alt="NYX Butter Gloss Spiked Toffee" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">💄</div>
+        <span class="product-tag">Bestseller</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">NYX Professional Makeup</p>
+        <h3 class="product-name">Butter Gloss — Spiked Toffee</h3>
+        <p class="product-desc">Brown Mauve · Non-sticky high-shine. Sheer to medium coverage with sweet scent.</p>
+        <div class="product-footer"><span class="product-price">GHS 45</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="gloss">
+      <div class="product-img" style="background:#FDF0E8">
+        <img src="https://i5.walmartimages.com/seo/NYX-Professional-Makeup-Butter-Gloss-Non-Sticky-Lip-Gloss-Creme-Brulee-0-27-Oz_cb04f267-cc8f-4def-bbb7-1ba84b800104.2f73f10aaa098c882580ebce8bc70117.jpeg" alt="NYX Butter Gloss Creme Brulee" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">💄</div>
+        <span class="product-tag">Fan Fave</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">NYX Professional Makeup</p>
+        <h3 class="product-name">Butter Gloss — Crème Brûlée</h3>
+        <p class="product-desc">Natural · Buttery soft formula. Silky-smooth, kissable finish.</p>
+        <div class="product-footer"><span class="product-price">GHS 45</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="gloss">
+      <div class="product-img" style="background:#FAF0F5">
+        <img src="https://i5.walmartimages.com/seo/NYX-Professional-Makeup-Butter-Butter-Gloss-Bling-Non-Sticky-Lip-Gloss-Bring-The-Bling-0-27-fl-oz_78c65c9c-0caa-4be8-918e-10443c79e697.9eb394a534012ee7adef5878f5d810ea.jpeg" alt="NYX Butter Gloss Bling Bring The Bling" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">✨</div>
+        <span class="product-tag">New In</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">NYX Professional Makeup</p>
+        <h3 class="product-name">Butter Gloss Bling — Bring The Bling</h3>
+        <p class="product-desc">Glittery Sparkle · Shiny vegan formula with blingy sheer-to-medium coverage.</p>
+        <div class="product-footer"><span class="product-price">GHS 50</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="gloss">
+      <div class="product-img" style="background:#FDF4F6">
+        <img src="https://i5.walmartimages.com/seo/NYX-Professional-Makeup-Butter-Gloss-Non-Sticky-Lip-Gloss-Angel-Food-Cake-0-27-Oz_4fda758a-f005-4428-851b-81d0d86fbb76.07ef93d7f9e9e69d1324e8eb30a8816e.jpeg" alt="NYX Butter Gloss Angel Food Cake" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">💄</div>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">NYX Professional Makeup</p>
+        <h3 class="product-name">Butter Gloss — Angel Food Cake</h3>
+        <p class="product-desc">True Mauve · Gorgeous mauve for any skin tone. Stays put, won't feather.</p>
+        <div class="product-footer"><span class="product-price">GHS 45</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="gloss">
+      <div class="product-img" style="background:#F8F5FA">
+        <img src="https://i5.walmartimages.com/seo/NYX-Professional-Makeup-Butter-Gloss-Non-Sticky-Lip-Gloss-Sugar-Glass-Clear-0-27-Oz_0d51dd6f-90c1-41aa-a87f-462126503235.3455778de1236ece99a7aaf44f7de74d.jpeg" alt="NYX Butter Gloss Sugar Glass" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">💋</div>
+        <span class="product-tag">Clear Gloss</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">NYX Professional Makeup</p>
+        <h3 class="product-name">Butter Gloss — Sugar Glass</h3>
+        <p class="product-desc">Crystal Clear · Layer over any lip product for an instant glass-lip effect.</p>
+        <div class="product-footer"><span class="product-price">GHS 45</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="gloss">
+      <div class="product-img" style="background:#F8EFF4">
+        <img src="https://i5.walmartimages.com/seo/NYX-Professional-Makeup-Butter-Gloss-Bling-Non-Sticky-Lip-Gloss-Big-Spender-0-27-Oz_814efc71-3751-45b1-bf0b-300fc48955c1.ae092a334efc803f89b09da9d3112433.jpeg" alt="NYX Butter Gloss Bling Big Spender" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">✨</div>
+        <span class="product-tag">Glitter</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">NYX Professional Makeup</p>
+        <h3 class="product-name">Butter Gloss Bling — Big Spender</h3>
+        <p class="product-desc">Sparkly Nude · OG Butter Gloss with blingy sparkle. Universally flattering shade.</p>
+        <div class="product-footer"><span class="product-price">GHS 50</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="gloss">
+      <div class="product-img" style="background:#F5EDE8">
+        <img src="https://i5.walmartimages.com/seo/NYX-Professional-Makeup-Butter-Gloss-Non-Sticky-Lip-Gloss-Praline-Glosses-0-27-oz_997f7fe8-351f-4f43-ab04-231fff1453ef.0ab501d49151b89c80c0646af2c4838d.jpeg" alt="NYX Butter Gloss Praline" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">💄</div>
+        <span class="product-tag">Deep Nude</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">NYX Professional Makeup</p>
+        <h3 class="product-name">Butter Gloss — Praline</h3>
+        <p class="product-desc">Deep Nude · Rich deep nude gloss that flatters deeper skin tones beautifully.</p>
+        <div class="product-footer"><span class="product-price">GHS 45</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="gloss">
+      <div class="product-img" style="background:#FEF0F2">
+        <img src="https://i5.walmartimages.com/seo/NYX-Professional-Makeup-Fat-Oil-Lip-Drip-Hydrating-Lip-Gloss-That-s-Chic_fde45405-2b60-43a7-9792-89d4af0f920f.11798a8487bd9243d3f05e05300dc736.jpeg" alt="NYX Fat Oil Lip Drip" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">💧</div>
+        <span class="product-tag">Lip Oil</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">NYX Professional Makeup</p>
+        <h3 class="product-name">Fat Oil Lip Drip</h3>
+        <p class="product-desc">High-shine hydrating lip oil. Squalane & cloudberry oil. 12hr hydration, non-sticky.</p>
+        <div class="product-footer"><span class="product-price">GHS 55</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="gloss">
+      <div class="product-img" style="background:#FAF0F5">
+        <img src="https://media.ulta.com/i/ulta/2571228?w=400&h=400" alt="KIKO Milano 3D Hydra Lipgloss" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">💄</div>
+        <span class="product-tag">Italian Luxury</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">KIKO Milano</p>
+        <h3 class="product-name">3D Hydra Lipgloss</h3>
+        <p class="product-desc">Iconic 3D-effect glow. Hydrating, non-sticky, long-lasting formula. 30 shades.</p>
+        <div class="product-footer"><span class="product-price">GHS 85</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="gloss">
+      <div class="product-img" style="background:#FDF4F6">
+        <img src="https://i5.walmartimages.com/seo/e-l-f-Glossy-Lip-Stain-Pinkies-Up-0-1-fl-oz_e82c44de-0878-4f0b-975f-38d89e8f1a5f.edecbedeb233b7df30a0e1e540a3c6c0.jpeg" alt="e.l.f. Glossy Lip Stain" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">💋</div>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">e.l.f. Cosmetics</p>
+        <h3 class="product-name">Glossy Lip Stain</h3>
+        <p class="product-desc">Long-wear buildable color with a gloss-to-stain finish. Lightweight. Vegan & cruelty-free.</p>
+        <div class="product-footer"><span class="product-price">GHS 55</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="gloss">
+      <div class="product-img" style="background:#F5EAF5">
+        <img src="https://i5.walmartimages.com/seo/NYX-Professional-Makeup-Soft-Matte-Lip-Cream_f6878774-c03d-4385-9a30-488a5e6a6e3b.68df3075b6e792586702e101cc2f8413.jpeg" alt="NYX Soft Matte Lip Cream" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">💄</div>
+        <span class="product-tag">Matte</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">NYX Professional Makeup</p>
+        <h3 class="product-name">Soft Matte Lip Cream</h3>
+        <p class="product-desc">Creamy soft matte coverage. Silky-smooth, long-lasting. Available in 40+ shades.</p>
+        <div class="product-footer"><span class="product-price">GHS 75</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="gloss">
+      <div class="product-img" style="background:#FDF0F0">
+        <div class="product-icon-fallback" style="display:flex">💄</div>
+        <span class="product-tag">Fan Fave</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">Juvia's Place</p>
+        <h3 class="product-name">Candy Shop Lip Gloss</h3>
+        <p class="product-desc">High-shine, non-sticky, hydrating gloss. Available in 5 gorgeous shades for all skin tones.</p>
+        <div class="product-footer"><span class="product-price">GHS 75</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <!-- ── LIP LINERS ── -->
+    <div class="product-card" data-cat="liner">
+      <div class="product-img" style="background:#F0EAE6">
+        <img src="https://i5.walmartimages.com/seo/e-l-f-Cream-Glide-Lip-Liner-Dark-Cocoa-0-03oz_d00af9c9-6785-40b5-9927-60dda8fcebec.92fe6f7256b58022e9c0e76d5bf23695.jpeg" alt="e.l.f. Cream Glide Lip Liner" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">✏️</div>
+        <span class="product-tag">Must Have</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">e.l.f. Cosmetics</p>
+        <h3 class="product-name">Cream Glide Lip Liner — Dark Cocoa</h3>
+        <p class="product-desc">Semi-matte, highly pigmented. Glides on smooth to shape & sculpt. Vegan & cruelty-free.</p>
+        <div class="product-footer"><span class="product-price">GHS 20</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="liner">
+      <div class="product-img" style="background:#F5EDE8">
+        <img src="https://i5.walmartimages.com/seo/NYX-Professional-Makeup-Line-Loud-Long-Lasting-Lip-Liner-Born-To-Hustle-0-04-Oz_e0c43498-036a-420a-8683-d9fe4067bb81.3f86087010088e4eee78d16b4de1ebca.jpeg" alt="NYX Line Loud Lip Liner" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">✏️</div>
+        <span class="product-tag">Longwear</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">NYX Professional Makeup</p>
+        <h3 class="product-name">Line Loud Lip Liner</h3>
+        <p class="product-desc">Matte, waterproof, 18 vibrant shades. Infused with jojoba oil & vitamin E. Vegan.</p>
+        <div class="product-footer"><span class="product-price">GHS 40</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="liner">
+      <div class="product-img" style="background:#FBF0EC">
+        <div class="product-icon-fallback" style="display:flex">✏️</div>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">Relove by Revolution</p>
+        <h3 class="product-name">Lipliner Pencil</h3>
+        <p class="product-desc">8 stunning shades — deep brown to nude. Creamy formula, precise line. Budget-friendly queen.</p>
+        <div class="product-footer"><span class="product-price">GHS 45</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="liner">
+      <div class="product-img" style="background:#F5EDE8">
+        <img src="https://media.ulta.com/i/ulta/2622841?w=400&h=400" alt="Juvia's Place Luxe Lip Liner" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">✏️</div>
+        <span class="product-tag">Cult Fave</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">Juvia's Place</p>
+        <h3 class="product-name">Luxe Lip Liner</h3>
+        <p class="product-desc">Long-wearing creamy pencil. Glides seamlessly, pairs perfectly with Juvia's glosses.</p>
+        <div class="product-footer"><span class="product-price">GHS 65</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <!-- ── LIP BALMS ── -->
+    <div class="product-card" data-cat="balm">
+      <div class="product-img" style="background:#FDF0F5">
+        <img src="https://i5.walmartimages.com/seo/Maybelline-Baby-Lips-Moisturizing-Lip-Balm-Cherry-Me-0-15-oz_31a3beec-deb6-49f3-b161-26768a97ceac.b5c76399a2826838060e4d712a4082d0.jpeg" alt="Maybelline Baby Lips" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">💋</div>
+        <span class="product-tag">8hr Hydration</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">Maybelline</p>
+        <h3 class="product-name">Baby Lips Lip Balm</h3>
+        <p class="product-desc">Moisturizing lip care with SPF. 8 hours of hydration. Lips visibly renewed in one week.</p>
+        <div class="product-footer"><span class="product-price">GHS 45</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="balm">
+      <div class="product-img" style="background:#F0F5EE">
+        <img src="https://i5.walmartimages.com/seo/EOS-100-Natural-Organic-3-pack-lip-balm-sticks_f66542e2-5394-456a-a9c1-fc67b409cec0.9bc7eb58fcd21f96ce5f465197a611fa.png" alt="eos Lip Balm" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">🌿</div>
+        <span class="product-tag">Natural</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">eos</p>
+        <h3 class="product-name">100% Natural Lip Balm</h3>
+        <p class="product-desc">Made with shea butter & coconut oil. Organic, hypoallergenic. Delicious flavors.</p>
+        <div class="product-footer"><span class="product-price">GHS 50</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <!-- ── BROWS ── -->
+    <div class="product-card" data-cat="brow">
+      <div class="product-img" style="background:#F5EDE8">
+        <img src="https://i5.walmartimages.com/seo/NYX-Professional-Makeup-Micro-Vegan-Eyebrow-Pencil-Ash-Brown-0-003-oz_16a36be3-98d6-452f-82d3-c80bf4d7c49c.7005109b824ee1915b52da7e157fd93a.jpeg" alt="NYX Micro Brow Pencil" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">✏️</div>
+        <span class="product-tag">Micro Tip</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">NYX Professional Makeup</p>
+        <h3 class="product-name">Micro Brow Pencil</h3>
+        <p class="product-desc">Ultra-skinny tip for hair-stroke precision. Break-resistant, waterproof. 12 shades. Vegan.</p>
+        <div class="product-footer"><span class="product-price">GHS 70</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="brow">
+      <div class="product-img" style="background:#F0EBF0">
+        <img src="https://i5.walmartimages.com/seo/NYX-Professional-Makeup-Control-Freak-Eyebrow-Gel-Clear_654c8d61-541b-4459-95f8-2310f33a218f_1.2c76f2e3ae12ff56e1520c128823ece0.jpeg" alt="NYX Control Freak Brow Gel" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">🔮</div>
+        <span class="product-tag">Clear Gel</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">NYX Professional Makeup</p>
+        <h3 class="product-name">Control Freak Brow Gel</h3>
+        <p class="product-desc">Clear, non-sticky formula tames and sets brows all day. Doubles as a clear mascara.</p>
+        <div class="product-footer"><span class="product-price">GHS 80</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="brow">
+      <div class="product-img" style="background:#F8F0E8">
+        <img src="https://i5.walmartimages.com/seo/Maybelline-Tattoo-Studio-Brow-Styling-Gel-Up-to-36HR-Wear-Deep-Brown-0-2-fl-oz_8e0581ac-9ff4-4f2e-bff7-97ec58dc4f28.d11e23c9b4562e79a2d3d1fc5b0a4ca0.png" alt="Maybelline Tattoo Brow Gel" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">✏️</div>
+        <span class="product-tag">36HR Wear</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">Maybelline</p>
+        <h3 class="product-name">Tattoo Studio Brow Gel</h3>
+        <p class="product-desc">Up to 36hr waterproof, sweat & transfer resistant. Fills for a thicker brow look.</p>
+        <div class="product-footer"><span class="product-price">GHS 55</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <!-- ── FRAGRANCE ── -->
+    <div class="product-card" data-cat="fragrance">
+      <div class="product-img" style="background:#F8F5F0">
+        <img src="https://www.sephora.com/productimages/sku/s2693356-main-zoom.jpg" alt="PHLUR Vanilla Skin Body Mist" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">🌿</div>
+        <span class="product-tag">Viral Scent</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">PHLUR</p>
+        <h3 class="product-name">Vanilla Skin Body Mist</h3>
+        <p class="product-desc">Warm vanilla · Pink pepper, cashmere wood & sandalwood. The TikTok viral scent.</p>
+        <div class="product-footer"><span class="product-price">GHS 180</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="fragrance">
+      <div class="product-img" style="background:#F5F0F8">
+        <img src="https://www.sephora.com/productimages/sku/s2568350-main-zoom.jpg" alt="PHLUR Missing Person EDP" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">🌸</div>
+        <span class="product-tag">Bestseller</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">PHLUR</p>
+        <h3 class="product-name">Missing Person EDP</h3>
+        <p class="product-desc">Skin musk · Bergamot, jasmine & blonde wood. Evokes the lingering scent of your lover's skin.</p>
+        <div class="product-footer"><span class="product-price">GHS 250</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="fragrance">
+      <div class="product-img" style="background:#FBF5F8">
+        <img src="https://www.sephora.com/productimages/sku/s2765311-main-zoom.jpg" alt="PHLUR Vanilla Skin EDP" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">✨</div>
+        <span class="product-tag">Travel Size</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">PHLUR</p>
+        <h3 class="product-name">Vanilla Skin Eau de Parfum</h3>
+        <p class="product-desc">Higher concentration EDP. Pink pepper, sugar crystals & cozy sandalwood. Long-wear.</p>
+        <div class="product-footer"><span class="product-price">GHS 300</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="fragrance">
+      <div class="product-img" style="background:#F8F0F5">
+        <img src="https://www.sephora.com/productimages/sku/s2763021-main-zoom.jpg" alt="PHLUR Soft Spot EDP" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">🌸</div>
+        <span class="product-tag">New Arrival</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">PHLUR</p>
+        <h3 class="product-name">Soft Spot EDP</h3>
+        <p class="product-desc">Warm florals · Vanilla orchid, jasmine & amber musk. Sultry, skin-on-skin fragrance.</p>
+        <div class="product-footer"><span class="product-price">GHS 250</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="fragrance">
+      <div class="product-img" style="background:#F0F5F8">
+        <div class="product-icon-fallback" style="display:flex">🌸</div>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">Body Mist Collection</p>
+        <h3 class="product-name">Feminine Body Mist</h3>
+        <p class="product-desc">Delicate long-lasting fragrance mist. Soft florals for everyday luxury. Ask us about current scents.</p>
+        <div class="product-footer"><span class="product-price">GHS 65</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <!-- ── WIPES & CARE ── -->
+    <div class="product-card" data-cat="wipes">
+      <div class="product-img" style="background:#F0F5F0">
+        <img src="https://i5.walmartimages.com/seo/Summer-s-Eve-Feminine-Cleansing-Wipes-Blissful-Escape-12-Count_89ab4f9a-4b33-4e16-b756-9e8af05a004c.8bc1e3a81eab32e2e2f5db015ff86954.jpeg" alt="Summer's Eve Feminine Wipes" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">🌿</div>
+        <span class="product-tag">pH Balanced</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">Summer's Eve</p>
+        <h3 class="product-name">Feminine Wipes — Blissful Escape</h3>
+        <p class="product-desc">Gynecologist tested, pH-balanced, dye-free. Gentle for sensitive skin. 12 individually wrapped.</p>
+        <div class="product-footer"><span class="product-price">GHS 35</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="product-card" data-cat="wipes">
+      <div class="product-img" style="background:#EFF5F2">
+        <img src="https://i5.walmartimages.com/seo/Summer-s-Eve-Feminine-Cleansing-Wipes-Blissful-Escape-12-Count_89ab4f9a-4b33-4e16-b756-9e8af05a004c.8bc1e3a81eab32e2e2f5db015ff86954.jpeg" alt="Wipes Travel Pack Bundle" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-icon-fallback" style="display:none">🌿</div>
+        <span class="product-tag">Value Bundle</span>
+      </div>
+      <div class="product-body">
+        <p class="product-brand">Summer's Eve</p>
+        <h3 class="product-name">Wipes Travel Pack — 6 for GHS 120</h3>
+        <p class="product-desc">Bundle deal! 6 travel packs of pH-balanced feminine wipes. Purse-sized, on-the-go freshness.</p>
+        <div class="product-footer"><span class="product-price">GHS 120</span><button class="product-btn add-to-cart-btn">Add to Cart</button></div>
+      </div>
+    </div>
+
+    <div class="empty-state" id="emptyState">
+      <p>No products in this category yet. More coming soon! 💖</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-bottom-strip">
+    <a href="index.html" class="footer-back">← Back to Home</a>
+    <p>© 2026 Dossier d'Eclat · All rights reserved · Built with 💖</p>
+    <a href="https://wa.me/233551411783" target="_blank" style="font-size:0.75rem;color:#25D366;text-decoration:none;font-weight:500">💬 0551 411 783</a>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('hamburger').addEventListener('click',()=>document.getElementById('mobileMenu').classList.toggle('open'));
+  function closeMenu(){document.getElementById('mobileMenu').classList.remove('open')}
+
+  function filterCat(cat,btn){
+    const cards = document.querySelectorAll('[data-cat]');
+    let visible = 0;
+    cards.forEach(c=>{
+      const show = cat==='all'||c.dataset.cat===cat;
+      c.style.display = show?'':'none';
+      if(show) visible++;
+    });
+    document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    document.getElementById('productCount').textContent = visible+' product'+(visible!==1?'s':'');
+    document.getElementById('emptyState').style.display = visible===0?'block':'none';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  // init count
+  document.getElementById('productCount').textContent = document.querySelectorAll('[data-cat]').length+' products';
+
+  // Auto-filter from URL param (e.g. shop.html?cat=gloss)
+  const urlCat = new URLSearchParams(window.location.search).get('cat');
+  if (urlCat) {
+    const tab = [...document.querySelectorAll('.cat-tab')].find(t => t.getAttribute('onclick')?.includes("'"+urlCat+"'"));
+    if (tab) filterCat(urlCat, tab);
+  }
+</script>
+
+<!-- CART DRAWER -->
+<div class="cart-overlay" id="cartOverlay"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-header">
+    <h2>Your Cart</h2>
+    <button class="cart-close" id="cartClose" aria-label="Close cart">&times;</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <!-- Items will be dynamically loaded here by cart.js -->
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total-row">
+      <span>Total:</span>
+      <span class="cart-total-price" id="cartTotalPrice">GHS 0</span>
+    </div>
+    <button class="cart-checkout-btn" id="cartCheckoutBtn">
+      <span>Checkout via WhatsApp</span>
+      <span class="cart-checkout-icon">💬</span>
+    </button>
+  </div>
+</div>
+
+<script src="cart.js"></script>
+</body>
+</html>
