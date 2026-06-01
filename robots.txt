@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Block any cart or checkout internals if added in future
+Disallow: /cart/
+Disallow: /checkout/
+
+# Sitemap location
+Sitemap: https://www.dossierdeclat.com/sitemap.xml
