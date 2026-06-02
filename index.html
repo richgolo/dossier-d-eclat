@@ -81,22 +81,98 @@
       {
         "@type": "OfferCatalog",
         "name": "Lip Glosses",
-        "url": "https://dossierdeclat.com/shop.html"
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "Lip Glosses",
+              "description": "Premium lip glosses from NYX, KIKO Milano and more. Non-sticky, high-shine formulas.",
+              "url": "https://dossierdeclat.com/shop.html",
+              "brand": {"@type": "Brand", "name": "Dossier d'Éclat"},
+              "offers": {
+                "@type": "AggregateOffer",
+                "lowPrice": "45",
+                "highPrice": "95",
+                "priceCurrency": "GHS",
+                "availability": "https://schema.org/InStock",
+                "seller": {"@type": "Store", "name": "Dossier d'Éclat"}
+              }
+            }
+          }
+        ]
       },
       {
         "@type": "OfferCatalog",
         "name": "Fragrances & Body Mists",
-        "url": "https://dossierdeclat.com/shop.html"
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "Fragrances & Body Mists",
+              "description": "Luxury fragrances and body mists including PHLUR Missing Person EDP and Vanilla Skin Body Mist.",
+              "url": "https://dossierdeclat.com/shop.html",
+              "brand": {"@type": "Brand", "name": "Dossier d'Éclat"},
+              "offers": {
+                "@type": "AggregateOffer",
+                "lowPrice": "150",
+                "highPrice": "280",
+                "priceCurrency": "GHS",
+                "availability": "https://schema.org/InStock",
+                "seller": {"@type": "Store", "name": "Dossier d'Éclat"}
+              }
+            }
+          }
+        ]
       },
       {
         "@type": "OfferCatalog",
         "name": "Brow Products",
-        "url": "https://dossierdeclat.com/shop.html"
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "Brow Products",
+              "description": "Precision brow pencils and gels from NYX and Maybelline. Waterproof, long-lasting formulas.",
+              "url": "https://dossierdeclat.com/shop.html",
+              "brand": {"@type": "Brand", "name": "Dossier d'Éclat"},
+              "offers": {
+                "@type": "AggregateOffer",
+                "lowPrice": "55",
+                "highPrice": "90",
+                "priceCurrency": "GHS",
+                "availability": "https://schema.org/InStock",
+                "seller": {"@type": "Store", "name": "Dossier d'Éclat"}
+              }
+            }
+          }
+        ]
       },
       {
         "@type": "OfferCatalog",
         "name": "Feminine Wipes",
-        "url": "https://dossierdeclat.com/shop.html"
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "Feminine Wipes",
+              "description": "Gentle, pH-balanced feminine hygiene wipes. Dermatologically tested and safe for sensitive skin.",
+              "url": "https://dossierdeclat.com/shop.html",
+              "brand": {"@type": "Brand", "name": "Dossier d'Éclat"},
+              "offers": {
+                "@type": "AggregateOffer",
+                "lowPrice": "35",
+                "highPrice": "60",
+                "priceCurrency": "GHS",
+                "availability": "https://schema.org/InStock",
+                "seller": {"@type": "Store", "name": "Dossier d'Éclat"}
+              }
+            }
+          }
+        ]
       }
     ]
   }
@@ -109,6 +185,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500&display=swap"
     rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <link rel="stylesheet" href="cart.css">
   <style>
     :root {
@@ -1567,7 +1644,7 @@
 <body>
 
   <a href="https://wa.me/233551411783" target="_blank" class="float-wa">
-    <span class="wa-tip">Order on WhatsApp</span>💬
+    <span class="wa-tip">Order on WhatsApp</span><i class="fa-brands fa-whatsapp"></i>
   </a>
 
   <!-- NAV -->
@@ -1582,7 +1659,7 @@
     </ul>
     <div class="nav-right">
       <button class="nav-cart-toggle" id="cartToggleBtn" aria-label="View Cart">
-        <span class="cart-icon-wrapper">🛒</span>
+        <span class="cart-icon-wrapper"><i class="fa-solid fa-bag-shopping"></i></span>
         <span class="cart-badge" id="cartBadge" style="display:none">0</span>
       </button>
       <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
@@ -1595,9 +1672,10 @@
     <a href="#how-to" onclick="closeMenu()">How to Order</a>
     <a href="#reviews" onclick="closeMenu()">Reviews</a>
     <a href="#contact" onclick="closeMenu()">Contact</a>
-    <a href="#" id="mobileCartToggle" onclick="closeMenu()" class="mobile-cart-link">🛒 View Cart <span
-        id="mobileCartBadge">(0)</span></a>
-    <a href="https://wa.me/233551411783" target="_blank" style="color:#25D366">💬 WhatsApp: 0551411783</a>
+    <a href="#" id="mobileCartToggle" onclick="closeMenu()" class="mobile-cart-link"><i
+        class="fa-solid fa-bag-shopping"></i> View Cart <span id="mobileCartBadge">(0)</span></a>
+    <a href="https://wa.me/233551411783" target="_blank" style="color:#25D366"><i class="fa-brands fa-whatsapp"></i>
+      WhatsApp: 0551411783</a>
   </div>
 
   <!-- HERO -->
@@ -1801,7 +1879,7 @@
       </div>
     </div>
     <a href="https://wa.me/233551411783" target="_blank" class="btn-primary"
-      style="background:var(--brown);color:var(--pink)">💬 Chat With Us Now</a>
+      style="background:var(--brown);color:var(--pink)"><i class="fa-brands fa-whatsapp"></i> Chat With Us Now</a>
   </section>
 
   <!-- TESTIMONIALS -->
@@ -1816,19 +1894,22 @@
     <!-- Hardcoded featured reviews -->
     <div class="testi-grid">
       <div class="testi-card">
-        <div class="testi-stars">★★★★★</div>
+        <div class="testi-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+            class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
         <p class="testi-text">"The lip gloss is absolutely everything — the shine lasts all day and it's not sticky at
           all. I've ordered three more already."</p>
         <p class="testi-name">— Abena K.</p>
       </div>
       <div class="testi-card">
-        <div class="testi-stars">★★★★★</div>
+        <div class="testi-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+            class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
         <p class="testi-text">"The Vanilla Skin mist smells SO good. Subtle but you'll get compliments all day. This
           brand understands femininity."</p>
         <p class="testi-name">— Nana A.</p>
       </div>
       <div class="testi-card">
-        <div class="testi-stars">★★★★★</div>
+        <div class="testi-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+            class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
         <p class="testi-text">"Packaging is gorgeous, products are even better. Dossier d'Éclat has become a staple in
           my daily routine."</p>
         <p class="testi-name">— Efua M.</p>
@@ -1843,19 +1924,20 @@
         <h3>Share Your Experience</h3>
         <label class="review-field-label">Your Rating</label>
         <div class="star-picker" id="starPicker">
-          <span data-val="1">★</span>
-          <span data-val="2">★</span>
-          <span data-val="3">★</span>
-          <span data-val="4">★</span>
-          <span data-val="5">★</span>
+          <span data-val="1"><i class="fa-solid fa-star"></i></span>
+          <span data-val="2"><i class="fa-solid fa-star"></i></span>
+          <span data-val="3"><i class="fa-solid fa-star"></i></span>
+          <span data-val="4"><i class="fa-solid fa-star"></i></span>
+          <span data-val="5"><i class="fa-solid fa-star"></i></span>
         </div>
         <label class="review-field-label" for="reviewName">Your Name</label>
         <input class="review-input" type="text" id="reviewName" placeholder="e.g. Ama B." maxlength="60">
         <label class="review-field-label" for="reviewText">Your Review</label>
         <textarea class="review-input review-textarea" id="reviewText" placeholder="Tell us about your experience…"
           maxlength="400"></textarea>
-        <button class="review-submit" onclick="submitReview()">Submit Review 💖</button>
-        <div class="review-success" id="reviewSuccess">Thank you for your review! 💖</div>
+        <button class="review-submit" onclick="submitReview()">Submit Review <i class="fa-solid fa-heart"></i></button>
+        <div class="review-success" id="reviewSuccess">Thank you for your review! <i class="fa-solid fa-heart"></i>
+        </div>
       </div>
     </div>
   </section>
@@ -1870,7 +1952,7 @@
         <p style="color:rgba(242,196,206,0.6);font-size:0.9rem;line-height:1.8;margin-bottom:0.5rem">We'd love to hear
           from you! Reach out to place an order, ask questions, or just say hello. 💖</p>
         <a href="tel:+233551411783" class="ccard">
-          <div class="ccard-icon phone">📞</div>
+          <div class="ccard-icon phone"><i class="fa-solid fa-phone"></i></div>
           <div>
             <p class="ccard-label">Call Us</p>
             <p class="ccard-val">0551 411 783</p>
@@ -1878,7 +1960,7 @@
           </div>
         </a>
         <a href="https://wa.me/233551411783" target="_blank" class="ccard">
-          <div class="ccard-icon wa">💬</div>
+          <div class="ccard-icon wa"><i class="fa-brands fa-whatsapp"></i></div>
           <div>
             <p class="ccard-label">WhatsApp</p>
             <p class="ccard-val">0551 411 783</p>
@@ -1913,8 +1995,9 @@
         <span class="footer-brand-name">Dossier d'Eclat</span>
         <span class="footer-brand-tag">✦ Curated Beauty Finds</span>
         <p>Premium feminine beauty products, carefully curated for the woman who knows her worth.</p>
-        <div class="fcl">📞 <a href="tel:+233551411783">0551 411 783</a></div>
-        <div class="fcl">💬 <a href="https://wa.me/233551411783" target="_blank">WhatsApp: 0551411783</a></div>
+        <div class="fcl"><i class="fa-solid fa-phone"></i> <a href="tel:+233551411783">0551 411 783</a></div>
+        <div class="fcl"><i class="fa-brands fa-whatsapp"></i> <a href="https://wa.me/233551411783"
+            target="_blank">WhatsApp: 0551411783</a></div>
       </div>
       <div class="fcol">
         <h4>Quick Links</h4>
@@ -1938,7 +2021,8 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2026 Dossier d'Eclat. All rights reserved. Built with 💖</p>
+      <p>© 2026 Dossier d'Eclat. All rights reserved. Built with <i class="fa-solid fa-heart" style="color:#F2C4CE"></i>
+      </p>
       <div class="socials">
         <a href="#" title="Instagram">IG</a>
         <a href="#" title="TikTok">TT</a>
@@ -1999,7 +2083,7 @@
       if (!container) return;
       container.innerHTML = reviews.map(r => `
       <div class="testi-card">
-        <div class="testi-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)}</div>
+        <div class="testi-stars">${'<i class="fa-solid fa-star"></i>'.repeat(r.stars)}${'<i class="fa-regular fa-star"></i>'.repeat(5 - r.stars)}</div>
         <p class="testi-text">"${r.text.replace(/</g, '&lt;')}"</p>
         <p class="testi-name">— ${r.name.replace(/</g, '&lt;')}</p>
       </div>`).join('');
@@ -2035,7 +2119,7 @@
       </div>
       <button class="cart-checkout-btn" id="cartCheckoutBtn">
         <span>Checkout via WhatsApp</span>
-        <span class="cart-checkout-icon">💬</span>
+        <span class="cart-checkout-icon"><i class="fa-brands fa-whatsapp"></i></span>
       </button>
     </div>
   </div>
