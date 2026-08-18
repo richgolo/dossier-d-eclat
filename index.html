@@ -577,7 +577,8 @@
 
     .preview-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
+      justify-content: center;
       gap: 2rem;
       max-width: 1100px;
       margin: 3.5rem auto 3rem
@@ -631,7 +632,7 @@
 
     .preview-sub {
       font-size: 0.75rem;
-      color: #9B7B73
+      color: #8A6358
     }
 
     .preview-arrow {
@@ -710,7 +711,7 @@
 
     .why-pill p {
       font-size: 0.8rem;
-      color: #9B7B73;
+      color: #8A6358;
       line-height: 1.6
     }
 
@@ -838,12 +839,14 @@
       color: var(--brown)
     }
 
-    .testi-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2rem;
-      max-width: 1100px;
-      margin: 3rem auto 0
+    .reviews-empty {
+      text-align: center;
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 1.1rem;
+      color: var(--pink-deep);
+      grid-column: 1/-1;
+      padding: 1rem 0
     }
 
     .testi-card {
@@ -1305,10 +1308,6 @@
         grid-template-columns: 1fr 1fr
       }
 
-      .testi-grid {
-        grid-template-columns: 1fr
-      }
-
       .contact-grid {
         grid-template-columns: 1fr;
         gap: 3rem
@@ -1610,48 +1609,11 @@
   </section>
 
   <!-- SHOP PREVIEW -->
-  <section class="shop-preview reveal">
+  <section class="shop-preview reveal" id="shopPreviewSection" style="display:none">
     <p class="section-label" style="text-align:center">✦ What We Carry</p>
     <h2 class="section-title" style="text-align:center">Browse by Category</h2>
     <div class="divider center"></div>
-    <div class="preview-grid">
-      <a href="shop.html?cat=gloss" class="preview-card">
-        <div class="preview-img" style="background:#FDF0F3"><img src="KIKO.jpeg" alt="KIKO Milano Lip Gloss"
-            loading="lazy"
-            style="width:100%;height:100%;object-fit:cover;transition:transform 0.4s"
-            onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'"></div>
-        <div class="preview-label">
-          <p class="preview-cat">Lips</p>
-          <p class="preview-name">Lip Glosses & Stains</p>
-          <p class="preview-sub">NYX · KIKO Milano · e.l.f. · Juvia's Place</p>
-          <span class="preview-arrow">Shop Glosses →</span>
-        </div>
-      </a>
-      <a href="shop.html?cat=fragrance" class="preview-card">
-        <div class="preview-img" style="background:#F5F0F8"><img src="MIST.jpeg" alt="Perfumes & Body Mists"
-            loading="lazy"
-            style="width:100%;height:100%;object-fit:cover;transition:transform 0.4s"
-            onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'"></div>
-        <div class="preview-label">
-          <p class="preview-cat">Fragrance</p>
-          <p class="preview-name">Perfumes & Body Mists</p>
-          <p class="preview-sub">PHLUR · Vanilla Skin · Missing Person · Soft Spot</p>
-          <span class="preview-arrow">Shop Fragrances →</span>
-        </div>
-      </a>
-      <a href="shop.html?cat=brow" class="preview-card">
-        <div class="preview-img" style="background:#F5F0E8"><img src="NYX.jpeg" alt="Brow & Lip Essentials"
-            loading="lazy"
-            style="width:100%;height:100%;object-fit:cover;transition:transform 0.4s"
-            onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'"></div>
-        <div class="preview-label">
-          <p class="preview-cat">Brows & Liners</p>
-          <p class="preview-name">Brow & Lip Essentials</p>
-          <p class="preview-sub">NYX · Maybelline · e.l.f. · Revolution</p>
-          <span class="preview-arrow">Shop Essentials →</span>
-        </div>
-      </a>
-    </div>
+    <div class="preview-grid" id="previewGrid"></div>
     <a href="shop.html" class="btn-primary">View All Products</a>
   </section>
 
@@ -1662,7 +1624,7 @@
         <p class="section-label">✦ Why Choose Us</p>
         <h2 class="section-title">Made for Her,<br>Always</h2>
         <div class="divider"></div>
-        <p style="font-size:0.88rem;color:#9B7B73;line-height:1.8">Every product in our collection is handpicked with
+        <p style="font-size:0.88rem;color:#8A6358;line-height:1.8">Every product in our collection is handpicked with
           intention — for the woman who values quality, femininity, and feeling her absolute best.</p>
       </div>
       <div class="why-pills">
@@ -1748,33 +1710,8 @@
     <h2 class="section-title">What the Girls Are Saying</h2>
     <div class="divider center"></div>
 
-    <!-- Customer-submitted reviews (from localStorage) -->
+    <!-- Customer-submitted reviews (from Supabase) -->
     <div class="dynamic-reviews" id="dynamicReviews"></div>
-
-    <!-- Hardcoded featured reviews -->
-    <div class="testi-grid">
-      <div class="testi-card">
-        <div class="testi-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-            class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-        <p class="testi-text">"The lip gloss is absolutely everything — the shine lasts all day and it's not sticky at
-          all. I've ordered three more already."</p>
-        <p class="testi-name">— Abena K.</p>
-      </div>
-      <div class="testi-card">
-        <div class="testi-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-            class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-        <p class="testi-text">"The Vanilla Skin mist smells SO good. Subtle but you'll get compliments all day. This
-          brand understands femininity."</p>
-        <p class="testi-name">— Nana A.</p>
-      </div>
-      <div class="testi-card">
-        <div class="testi-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-            class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-        <p class="testi-text">"Packaging is gorgeous, products are even better. Dossier d'Éclat has become a staple in
-          my daily routine."</p>
-        <p class="testi-name">— Efua M.</p>
-      </div>
-    </div>
 
     <!-- Write a Review -->
     <div class="review-form-wrap">
@@ -1810,7 +1747,7 @@
     <div class="contact-grid">
       <div class="contact-info">
         <p style="color:rgba(242,196,206,0.6);font-size:0.9rem;line-height:1.8;margin-bottom:0.5rem">We'd love to hear
-          from you! Reach out to place an order, ask questions, or just say hello. 💖</p>
+          from you! Reach out to place an order, ask questions, or just say hello.</p>
         <a href="tel:+233551411783" class="ccard">
           <div class="ccard-icon phone"><i class="fa-solid fa-phone"></i></div>
           <div>
@@ -1872,9 +1809,8 @@
       <div class="fcol">
         <h4>Connect</h4>
         <ul>
-          <li><a href="#">Instagram</a></li>
+          <li><a href="https://www.instagram.com/dossier.declat/" target="_blank">Instagram</a></li>
           <li><a href="https://wa.me/233551411783" target="_blank">WhatsApp</a></li>
-          <li><a href="#">TikTok</a></li>
           <li><a href="#about">About Us</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
@@ -1884,8 +1820,7 @@
       <p>© 2026 Dossier d'Eclat. All rights reserved. Built with <i class="fa-solid fa-heart" style="color:#F2C4CE"></i>
       </p>
       <div class="socials">
-        <a href="#" title="Instagram">IG</a>
-        <a href="#" title="TikTok">TT</a>
+        <a href="https://www.instagram.com/dossier.declat/" target="_blank" title="Instagram">IG</a>
         <a href="https://wa.me/233551411783" target="_blank" title="WhatsApp"
           style="border-color:rgba(37,211,102,0.35);color:#25D366">WA</a>
       </div>
@@ -1895,6 +1830,7 @@
   <script src="main.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
+  <script src="featured.js"></script>
   <script>
     // Scroll reveal
     const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible') }), { threshold: 0.08 });
@@ -1950,7 +1886,7 @@
       }
 
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Submit Review 💖';
+      submitBtn.innerHTML = 'Submit Review <i class="fa-solid fa-heart"></i>';
 
       if (error) {
         console.error('Failed to submit review', error);
@@ -1985,12 +1921,15 @@
         return;
       }
 
-      container.innerHTML = (data || []).map(r => `
+      const reviews = data || [];
+
+      container.innerHTML = reviews.length ? reviews.map(r => `
       <div class="testi-card">
         <div class="testi-stars">${'<i class="fa-solid fa-star"></i>'.repeat(r.stars)}${'<i class="fa-regular fa-star"></i>'.repeat(5 - r.stars)}</div>
         <p class="testi-text">"${String(r.text).replace(/</g, '&lt;')}"</p>
         <p class="testi-name">— ${String(r.name).replace(/</g, '&lt;')}</p>
-      </div>`).join('');
+      </div>`).join('') : `
+      <p class="reviews-empty">Be the first to share your experience!</p>`;
     }
 
     renderDynamicReviews();
@@ -2001,7 +1940,7 @@
       const name = inputs[0].value || 'A customer';
       const phone = inputs[1].value || '';
       const msg = inputs[2].value || '';
-      const text = encodeURIComponent("Hi Dossier d'Eclat! 💖\nName: " + name + (phone ? '\nPhone: ' + phone : '') + (msg ? '\nMessage: ' + msg : ''));
+      const text = encodeURIComponent("Hi Dossier d'Eclat!\nName: " + name + (phone ? '\nPhone: ' + phone : '') + (msg ? '\nMessage: ' + msg : ''));
       window.open('https://wa.me/233551411783?text=' + text, '_blank');
     }
   </script>

@@ -8,6 +8,8 @@ const CARD_BG_PALETTE = [
   '#F0F5F8', '#FBF5F8', '#F8F0F5'
 ];
 
+const DEFAULT_FALLBACK_ICON = 'fa-solid fa-heart';
+
 function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, c => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -27,11 +29,14 @@ function productCardHtml(product, index) {
     ? `<span class="product-tag sold-out">Sold Out</span>`
     : (product.tag ? `<span class="product-tag">${escapeHtml(product.tag)}</span>` : '');
 
+  const icon = product.fallback_icon || DEFAULT_FALLBACK_ICON;
+  const searchText = `${product.name} ${product.brand} ${product.description}`.toLowerCase();
+
   return `
-      <div class="product-card${soldOut ? ' sold-out' : ''}" data-cat="${escapeHtml(product.category)}">
+      <div class="product-card${soldOut ? ' sold-out' : ''}" data-cat="${escapeHtml(product.category)}" data-search="${escapeHtml(searchText)}">
         <div class="product-img" style="background:${bg}">
           ${imgTag}
-          <div class="product-icon-fallback" style="display:${hasImage ? 'none' : 'flex'}">${escapeHtml(product.fallback_icon || '💄')}</div>
+          <div class="product-icon-fallback" style="display:${hasImage ? 'none' : 'flex'}" data-icon="${escapeHtml(icon)}"><i class="${escapeHtml(icon)}"></i></div>
           ${tagHtml}
         </div>
         <div class="product-body">
@@ -64,7 +69,7 @@ async function loadProducts() {
 
   if (error) {
     console.error('Failed to load products', error);
-    grid.innerHTML = '<div class="products-error">Couldn\'t load the collection right now. Please refresh, or message us on WhatsApp 💬</div>';
+    grid.innerHTML = '<div class="products-error">Couldn\'t load the collection right now. Please refresh, or message us on WhatsApp.</div>';
     return;
   }
 
@@ -72,7 +77,7 @@ async function loadProducts() {
 
   grid.innerHTML = products.map(productCardHtml).join('') + `
       <div class="empty-state" id="emptyState">
-        <p>No products in this category yet. More coming soon! 💖</p>
+        <p>No products in this category yet. More coming soon.</p>
       </div>`;
 
   document.getElementById('productCount').textContent =

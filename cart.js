@@ -56,7 +56,7 @@ class DossierCart {
         brand: product.brand || "",
         price: parseFloat(product.price),
         img: product.img || "",
-        fallbackIcon: product.fallbackIcon || "💄",
+        fallbackIcon: product.fallbackIcon || "fa-solid fa-heart",
         quantity: 1
       });
     }
@@ -144,15 +144,15 @@ class DossierCart {
           brand: dataset.brand || btn.closest(".product-card")?.querySelector(".product-brand")?.textContent || "Dossier d'Éclat",
           price: dataset.price || btn.closest(".product-card")?.querySelector(".product-price")?.textContent.replace(/[^0-9.]/g, "") || "0",
           img: dataset.img || btn.closest(".product-card")?.querySelector(".product-img img")?.src || "",
-          fallbackIcon: dataset.fallbackIcon || btn.closest(".product-card")?.querySelector(".product-icon-fallback")?.textContent || "💄"
+          fallbackIcon: dataset.fallbackIcon || btn.closest(".product-card")?.querySelector(".product-icon-fallback")?.dataset.icon || "fa-solid fa-heart"
         };
-        
+
         this.addItem(product);
-        
+
         // Animate button feedback
         const originalText = btn.innerHTML;
         btn.classList.add("added");
-        btn.innerHTML = "Added! 💖";
+        btn.innerHTML = "Added! <i class=\"fa-solid fa-check\"></i>";
         setTimeout(() => {
           btn.classList.remove("added");
           btn.innerHTML = originalText;
@@ -195,24 +195,44 @@ class DossierCart {
     }
   }
 
-  handleCheckout() {
+  async handleCheckout() {
     if (this.items.length === 0) return;
 
-    let text = "Hi Dossier d'Éclat! 💖\n\nI'd like to place an order:\n\n";
-    text += "🛍️ *Order Details:*\n";
-    
+    this.logOrder();
+
+    let text = "Hi Dossier d'Éclat!\n\nI'd like to place an order:\n\n";
+    text += "*Order Details:*\n";
+
     this.items.forEach(item => {
       const itemSubtotal = item.price * item.quantity;
       text += `• ${item.quantity}x ${item.name} (${item.brand}) - GHS ${itemSubtotal}\n`;
     });
-    
-    text += `\n💳 *Total Amount:* GHS ${this.getTotalPrice()}\n\n`;
-    text += "Please let me know how to proceed with payment and delivery details. Thank you! ✨";
-    
+
+    text += `\n*Total Amount:* GHS ${this.getTotalPrice()}\n\n`;
+    text += "Please let me know how to proceed with payment and delivery details. Thank you!";
+
     const encodedText = encodeURIComponent(text);
     const whatsappUrl = `https://wa.me/${this.phone}?text=${encodedText}`;
-    
+
     window.open(whatsappUrl, "_blank");
+  }
+
+  async logOrder() {
+    // Best-effort sales log for the admin panel's Orders tab. Never blocks
+    // or delays checkout — WhatsApp opens regardless of whether this
+    // succeeds.
+    if (typeof supabaseClient === "undefined" || !supabaseClient) return;
+    try {
+      const items = this.items.map(item => ({
+        name: item.name,
+        brand: item.brand,
+        price: item.price,
+        quantity: item.quantity
+      }));
+      await supabaseClient.from("orders").insert({ items, total: this.getTotalPrice() });
+    } catch (e) {
+      console.warn("Could not log order", e);
+    }
   }
 
   render() {
@@ -237,9 +257,9 @@ class DossierCart {
       // Render Empty State
       container.innerHTML = `
         <div class="cart-empty-state">
-          <div class="cart-empty-icon">✨</div>
+          <div class="cart-empty-icon"><i class="fa-solid fa-bag-shopping"></i></div>
           <p class="cart-empty-title">Your Cart is Empty</p>
-          <p class="cart-empty-text">Add some beauty essentials to start glowing and complete your routine! 💖</p>
+          <p class="cart-empty-text">Add some beauty essentials to start glowing and complete your routine.</p>
           <a href="shop.html" class="cart-empty-shop-btn" id="cartEmptyShopBtn">Shop the Collection</a>
         </div>
       `;
@@ -276,7 +296,7 @@ class DossierCart {
           <div class="cart-item" data-item-id="${item.id}">
             <div class="cart-item-img-container">
               ${imgTag}
-              <div class="cart-item-fallback-icon" style="${item.img ? 'display:none' : 'display:flex'}">${item.fallbackIcon}</div>
+              <div class="cart-item-fallback-icon" style="${item.img ? 'display:none' : 'display:flex'}"><i class="${item.fallbackIcon}"></i></div>
             </div>
             <div class="cart-item-details">
               <span class="cart-item-brand">${item.brand}</span>

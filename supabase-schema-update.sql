@@ -73,3 +73,56 @@ create policy "Logged-in users can delete reviews"
   on reviews for delete
   to authenticated
   using (true);
+
+-- ── ICONS: migrate fallback_icon from emoji to Font Awesome classes ──
+-- Products seeded before this change still have emoji (🌿🌸✨✏️) in
+-- fallback_icon — the site now expects a Font Awesome class there instead.
+-- Safe to re-run: only touches rows that still hold an old emoji value.
+alter table products alter column fallback_icon set default 'fa-solid fa-heart';
+
+update products set fallback_icon = 'fa-solid fa-spray-can-sparkles' where fallback_icon in ('🌿', '🌸', '✨');
+update products set fallback_icon = 'fa-solid fa-pen' where fallback_icon = '✏️';
+update products set fallback_icon = 'fa-solid fa-droplet' where fallback_icon = '💄';
+update products set fallback_icon = 'fa-solid fa-heart' where fallback_icon !~ '^fa-';
+
+-- ── FEATURED: lets the admin panel flag products for the homepage ────
+alter table products add column if not exists featured boolean not null default false;
+
+-- ── ORDERS: lightweight sales log, written at WhatsApp checkout ──────
+-- No customer identity is captured here (that still happens in the
+-- WhatsApp conversation itself) — this table exists purely so she can see
+-- what's selling and rough revenue, since today an order only ever exists
+-- as a WhatsApp message thread.
+create table if not exists orders (
+  id bigint generated always as identity primary key,
+  items jsonb not null,
+  total numeric not null,
+  status text not null default 'new' check (status in ('new', 'completed', 'cancelled')),
+  created_at timestamptz not null default now()
+);
+
+alter table orders enable row level security;
+
+drop policy if exists "Public can log an order" on orders;
+create policy "Public can log an order"
+  on orders for insert
+  with check (true);
+-- No public select/update/delete — sales data is only visible to a logged-in user.
+
+drop policy if exists "Logged-in users can view orders" on orders;
+create policy "Logged-in users can view orders"
+  on orders for select
+  to authenticated
+  using (true);
+
+drop policy if exists "Logged-in users can update orders" on orders;
+create policy "Logged-in users can update orders"
+  on orders for update
+  to authenticated
+  using (true);
+
+drop policy if exists "Logged-in users can delete orders" on orders;
+create policy "Logged-in users can delete orders"
+  on orders for delete
+  to authenticated
+  using (true);

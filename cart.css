@@ -223,7 +223,7 @@
 
 .cart-item-price-unit {
   font-size: 0.72rem;
-  color: #9B7B73;
+  color: #8A6358;
 }
 
 /* Cart Item Quantity Controls */
@@ -329,7 +329,7 @@
 
 .cart-empty-text {
   font-size: 0.82rem;
-  color: #9B7B73;
+  color: #8A6358;
   line-height: 1.6;
   max-width: 250px;
 }

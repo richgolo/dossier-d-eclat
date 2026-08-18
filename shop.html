@@ -239,6 +239,24 @@
       white-space: nowrap
     }
 
+    .search-input {
+      border: 1px solid var(--pink-light);
+      background: white;
+      border-radius: 50px;
+      padding: 0.45rem 1.1rem;
+      font-size: 0.72rem;
+      font-family: var(--sans);
+      color: var(--brown);
+      outline: none;
+      width: 180px;
+      max-width: 100%;
+      transition: border-color 0.3s
+    }
+
+    .search-input:focus {
+      border-color: var(--pink-deep)
+    }
+
     /* GRID */
     .shop-section {
       padding: 3rem 3rem 6rem
@@ -258,6 +276,7 @@
       border-radius: 20px;
       overflow: hidden;
       border: 1px solid var(--pink-light);
+      box-shadow: 0 4px 16px rgba(44, 24, 16, 0.05);
       transition: transform 0.3s, box-shadow 0.3s
     }
 
@@ -279,8 +298,7 @@
     .product-img img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
-      padding: 0.8rem;
+      object-fit: cover;
       transition: transform 0.4s
     }
 
@@ -336,7 +354,7 @@
 
     .product-desc {
       font-size: 0.76rem;
-      color: #9B7B73;
+      color: #8A6358;
       line-height: 1.55;
       margin-bottom: 0.9rem
     }
@@ -383,7 +401,7 @@
     }
 
     .product-tag.sold-out {
-      background: #9B7B73
+      background: #8A6358
     }
 
     .product-card.sold-out .product-img {
@@ -583,6 +601,7 @@
       <button class="cat-tab" onclick="filterCat('brow',this)">Brows</button>
       <button class="cat-tab" onclick="filterCat('fragrance',this)">Fragrance</button>
       <button class="cat-tab" onclick="filterCat('wipes',this)">Wipes & Care</button>
+      <input type="search" class="search-input" id="searchInput" placeholder="Search products…" oninput="applySearch(this.value)">
       <span class="product-count" id="productCount">25 products</span>
     </div>
   </div>
@@ -607,20 +626,35 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
   <script>
+    let currentCategory = 'all';
+    let currentSearch = '';
+
     function filterCat(cat, btn) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      applyFilters();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function applySearch(value) {
+      currentSearch = value.trim().toLowerCase();
+      applyFilters();
+    }
+
+    function applyFilters() {
       const cards = document.querySelectorAll('[data-cat]');
       let visible = 0;
       cards.forEach(c => {
-        const show = cat === 'all' || c.dataset.cat === cat;
+        const matchesCat = currentCategory === 'all' || c.dataset.cat === currentCategory;
+        const matchesSearch = !currentSearch || (c.dataset.search || '').includes(currentSearch);
+        const show = matchesCat && matchesSearch;
         c.style.display = show ? '' : 'none';
         if (show) visible++;
       });
-      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
-      if (btn) btn.classList.add('active');
       document.getElementById('productCount').textContent = visible + ' product' + (visible !== 1 ? 's' : '');
       const emptyState = document.getElementById('emptyState');
       if (emptyState) emptyState.style.display = visible === 0 ? 'block' : 'none';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   </script>
   <script src="products.js"></script>

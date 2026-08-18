@@ -9,6 +9,8 @@ const adminView = document.getElementById('adminView');
 let editingProductId = null;
 let editingProductImageUrl = null;
 
+const DEFAULT_FALLBACK_ICON = 'fa-solid fa-heart';
+
 // ── AUTH ──────────────────────────────────────────────────
 
 async function checkSession() {
@@ -36,6 +38,8 @@ function showAdmin(session) {
   document.getElementById('whoLabel').textContent = session.user.email;
   loadProducts();
   loadReviews();
+  loadOrders();
+  loadOverview();
 }
 
 document.getElementById('loginBtn').addEventListener('click', async () => {
@@ -75,6 +79,36 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
+function goToTab(name) {
+  document.querySelector(`.tab-btn[data-tab="${name}"]`)?.click();
+}
+
+// ── OVERVIEW ──────────────────────────────────────────────
+
+async function loadOverview() {
+  const [productsRes, reviewsRes, ordersRes] = await Promise.all([
+    supabaseClient.from('products').select('in_stock'),
+    supabaseClient.from('reviews').select('approved'),
+    supabaseClient.from('orders').select('status, total')
+  ]);
+
+  const products = productsRes.data || [];
+  const reviews = reviewsRes.data || [];
+  const orders = ordersRes.data || [];
+
+  const soldOutCount = products.filter(p => !p.in_stock).length;
+  const pendingReviewsCount = reviews.filter(r => !r.approved).length;
+  const newOrdersCount = orders.filter(o => o.status === 'new').length;
+  // Only "Completed" orders are counted as real revenue — "New" just means
+  // someone clicked checkout, not that the sale actually went through.
+  const revenue = orders.filter(o => o.status === 'completed').reduce((sum, o) => sum + Number(o.total), 0);
+
+  document.getElementById('statSoldOut').textContent = soldOutCount;
+  document.getElementById('statPendingReviews').textContent = pendingReviewsCount;
+  document.getElementById('statNewOrders').textContent = newOrdersCount;
+  document.getElementById('statRevenue').textContent = 'GHS ' + revenue.toFixed(2);
+}
+
 // ── PRODUCTS ──────────────────────────────────────────────
 
 const CATEGORY_LABELS = {
@@ -103,10 +137,10 @@ async function loadProducts() {
   list.innerHTML = productsCache.map(p => `
     <div class="row-card">
       <div class="row-thumb">
-        ${p.image_url ? `<img src="${escapeHtml(p.image_url)}" alt="">` : escapeHtml(p.fallback_icon || '💄')}
+        ${p.image_url ? `<img src="${escapeHtml(p.image_url)}" alt="">` : `<i class="${escapeHtml(p.fallback_icon || DEFAULT_FALLBACK_ICON)}"></i>`}
       </div>
       <div class="row-info">
-        <div class="name">${escapeHtml(p.name)}${!p.in_stock ? '<span class="sold-out-pill">Sold Out</span>' : ''}</div>
+        <div class="name">${escapeHtml(p.name)}${!p.in_stock ? '<span class="sold-out-pill">Sold Out</span>' : ''}${p.featured ? '<span class="featured-pill">Featured</span>' : ''}</div>
         <div class="meta">${escapeHtml(p.brand)} · ${CATEGORY_LABELS[p.category] || p.category} · GHS ${p.price}</div>
       </div>
       <div class="row-actions">
@@ -128,8 +162,9 @@ function openProductForm(product) {
   document.getElementById('pfPrice').value = product ? product.price : '';
   document.getElementById('pfDescription').value = product ? product.description : '';
   document.getElementById('pfTag').value = product ? (product.tag || '') : '';
-  document.getElementById('pfFallbackIcon').value = product ? (product.fallback_icon || '💄') : '💄';
+  document.getElementById('pfFallbackIcon').value = product ? (product.fallback_icon || DEFAULT_FALLBACK_ICON) : DEFAULT_FALLBACK_ICON;
   document.getElementById('pfInStock').checked = product ? product.in_stock : true;
+  document.getElementById('pfFeatured').checked = product ? Boolean(product.featured) : false;
   document.getElementById('pfPhoto').value = '';
   document.getElementById('productFormError').style.display = 'none';
 
@@ -164,8 +199,9 @@ document.getElementById('saveProductBtn').addEventListener('click', async () => 
   const price = parseFloat(document.getElementById('pfPrice').value);
   const description = document.getElementById('pfDescription').value.trim();
   const tag = document.getElementById('pfTag').value.trim() || null;
-  const fallback_icon = document.getElementById('pfFallbackIcon').value.trim() || '💄';
+  const fallback_icon = document.getElementById('pfFallbackIcon').value || DEFAULT_FALLBACK_ICON;
   const in_stock = document.getElementById('pfInStock').checked;
+  const featured = document.getElementById('pfFeatured').checked;
   const file = document.getElementById('pfPhoto').files[0];
 
   if (!name || !brand || isNaN(price)) {
@@ -193,7 +229,7 @@ document.getElementById('saveProductBtn').addEventListener('click', async () => 
     image_url = supabaseClient.storage.from('product-photos').getPublicUrl(path).data.publicUrl;
   }
 
-  const row = { name, brand, category, price, description, tag, fallback_icon, in_stock, image_url };
+  const row = { name, brand, category, price, description, tag, fallback_icon, in_stock, featured, image_url };
 
   const { error } = editingProductId
     ? await supabaseClient.from('products').update(row).eq('id', editingProductId)
@@ -255,7 +291,7 @@ function reviewRowHtml(r) {
   return `
     <div class="row-card">
       <div class="row-info">
-        <div class="name">${escapeHtml(r.name)} <span class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)}</span></div>
+        <div class="name">${escapeHtml(r.name)} <span class="review-stars">${'<i class="fa-solid fa-star"></i>'.repeat(r.stars)}${'<i class="fa-regular fa-star"></i>'.repeat(5 - r.stars)}</span></div>
         <div class="meta">${escapeHtml(r.text)}</div>
       </div>
       <div class="row-actions">
@@ -279,6 +315,71 @@ function deleteReview(id) {
     if (error) { showToast('Could not delete: ' + error.message, true); return; }
     showToast('Review deleted.');
     loadReviews();
+  });
+}
+
+// ── ORDERS ────────────────────────────────────────────────
+// No customer identity is stored here — this is just a sales log written
+// automatically the moment someone clicks "Checkout via WhatsApp" (see
+// cart.js's logOrder()). That's a checkout *attempt*, not a confirmed sale
+// — she still needs to check the actual WhatsApp chat and mark each order
+// Completed (money + delivery sorted) or Cancelled (never went through).
+
+async function loadOrders() {
+  const statEl = document.getElementById('ordersStat');
+  const listEl = document.getElementById('ordersList');
+  const { data, error } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
+
+  if (error) {
+    listEl.innerHTML = `<p class="empty-msg">Couldn't load orders: ${error.message}</p>`;
+    statEl.textContent = '';
+    return;
+  }
+
+  const orders = data || [];
+  const revenue = orders.filter(o => o.status === 'completed').reduce((sum, o) => sum + Number(o.total), 0);
+  statEl.textContent = `${orders.length} order${orders.length !== 1 ? 's' : ''} logged · GHS ${revenue.toFixed(2)} confirmed revenue`;
+
+  listEl.innerHTML = orders.length
+    ? orders.map(orderRowHtml).join('')
+    : '<p class="empty-msg">No orders yet.</p>';
+}
+
+function orderRowHtml(o) {
+  const itemsSummary = (o.items || []).map(i => `${i.quantity}x ${i.name}`).join(', ');
+  const date = new Date(o.created_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  return `
+    <div class="row-card">
+      <div class="row-info">
+        <div class="name">GHS ${o.total}</div>
+        <div class="meta">${date}</div>
+        <div class="order-items">${escapeHtml(itemsSummary)}</div>
+      </div>
+      <div class="row-actions">
+        <select class="order-status-select" onchange="updateOrderStatus(${o.id}, this.value)">
+          <option value="new" ${o.status === 'new' ? 'selected' : ''}>New</option>
+          <option value="completed" ${o.status === 'completed' ? 'selected' : ''}>Completed</option>
+          <option value="cancelled" ${o.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+        </select>
+        <button class="btn btn-danger btn-small" onclick="deleteOrder(${o.id})">Delete</button>
+      </div>
+    </div>
+  `;
+}
+
+async function updateOrderStatus(id, status) {
+  const { error } = await supabaseClient.from('orders').update({ status }).eq('id', id);
+  if (error) { showToast('Could not update: ' + error.message, true); return; }
+  showToast('Order updated.');
+  loadOrders();
+}
+
+function deleteOrder(id) {
+  showConfirm('Delete this order record?', async () => {
+    const { error } = await supabaseClient.from('orders').delete().eq('id', id);
+    if (error) { showToast('Could not delete: ' + error.message, true); return; }
+    showToast('Order deleted.');
+    loadOrders();
   });
 }
 
