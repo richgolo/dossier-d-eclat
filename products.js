@@ -1,0 +1,89 @@
+// Renders the shop grid from the Supabase `products` table.
+// She manages products entirely from Supabase's Table Editor — this script
+// just fetches and displays whatever rows are there.
+
+const CARD_BG_PALETTE = [
+  '#F5EDE8', '#FDF0E8', '#FAF0F5', '#F5F0F8', '#F8F5F0',
+  '#F0EAE6', '#FDF0F5', '#F0F5EE', '#F8F0E8', '#F0EBF0',
+  '#F0F5F8', '#FBF5F8', '#F8F0F5'
+];
+
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+function productCardHtml(product, index) {
+  const bg = CARD_BG_PALETTE[index % CARD_BG_PALETTE.length];
+  const soldOut = !product.in_stock;
+  const hasImage = Boolean(product.image_url);
+
+  const imgTag = hasImage
+    ? `<img loading="lazy" src="${escapeHtml(product.image_url)}" alt="${escapeHtml(product.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+    : '';
+
+  const tagHtml = soldOut
+    ? `<span class="product-tag sold-out">Sold Out</span>`
+    : (product.tag ? `<span class="product-tag">${escapeHtml(product.tag)}</span>` : '');
+
+  return `
+      <div class="product-card${soldOut ? ' sold-out' : ''}" data-cat="${escapeHtml(product.category)}">
+        <div class="product-img" style="background:${bg}">
+          ${imgTag}
+          <div class="product-icon-fallback" style="display:${hasImage ? 'none' : 'flex'}">${escapeHtml(product.fallback_icon || '💄')}</div>
+          ${tagHtml}
+        </div>
+        <div class="product-body">
+          <p class="product-brand">${escapeHtml(product.brand)}</p>
+          <h3 class="product-name">${escapeHtml(product.name)}</h3>
+          <p class="product-desc">${escapeHtml(product.description)}</p>
+          <div class="product-footer">
+            <span class="product-price">GHS ${product.price}</span>
+            <button class="product-btn add-to-cart-btn"${soldOut ? ' disabled' : ''}>${soldOut ? 'Sold Out' : 'Add to Cart'}</button>
+          </div>
+        </div>
+      </div>`;
+}
+
+async function loadProducts() {
+  const grid = document.getElementById('productsGrid');
+  grid.innerHTML = '<div class="products-loading">Loading the collection…</div>';
+
+  if (!supabaseClient) {
+    grid.innerHTML = '<div class="products-error">The shop isn\'t connected yet — fill in supabase-config.js.</div>';
+    return;
+  }
+
+  let data, error;
+  try {
+    ({ data, error } = await supabaseClient.from('products').select('*').order('created_at'));
+  } catch (e) {
+    error = e;
+  }
+
+  if (error) {
+    console.error('Failed to load products', error);
+    grid.innerHTML = '<div class="products-error">Couldn\'t load the collection right now. Please refresh, or message us on WhatsApp 💬</div>';
+    return;
+  }
+
+  const products = data || [];
+
+  grid.innerHTML = products.map(productCardHtml).join('') + `
+      <div class="empty-state" id="emptyState">
+        <p>No products in this category yet. More coming soon! 💖</p>
+      </div>`;
+
+  document.getElementById('productCount').textContent =
+    products.length + ' product' + (products.length !== 1 ? 's' : '');
+
+  // Auto-filter from URL param (e.g. shop.html?cat=gloss)
+  const urlCat = new URLSearchParams(window.location.search).get('cat');
+  if (urlCat) {
+    const tab = [...document.querySelectorAll('.cat-tab')].find(t => t.getAttribute('onclick')?.includes("'" + urlCat + "'"));
+    if (tab) filterCat(urlCat, tab);
+  }
+}
+
+loadProducts();
