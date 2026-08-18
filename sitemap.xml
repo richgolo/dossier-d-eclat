@@ -4,7 +4,7 @@
 
   <!-- Homepage -->
   <url>
-    <loc>https://www.dossierdeclat.com/</loc>
+    <loc>https://dossierdeclat.com/</loc>
     <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
@@ -12,7 +12,7 @@
 
   <!-- Shop page -->
   <url>
-    <loc>https://www.dossierdeclat.com/shop.html</loc>
+    <loc>https://dossierdeclat.com/shop.html</loc>
     <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>

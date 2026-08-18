@@ -58,6 +58,8 @@
       "item": {
         "@type": "Product",
         "name": "PHLUR Vanilla Skin Body Mist",
+        "image": "https://www.sephora.com/productimages/sku/s2693356-main-zoom.jpg",
+        "description": "Warm vanilla · Pink pepper, cashmere wood & sandalwood. The TikTok viral scent.",
         "brand": {"@type": "Brand", "name": "PHLUR"},
         "offers": {"@type": "Offer", "price": "180", "priceCurrency": "GHS", "availability": "https://schema.org/InStock", "seller": {"@type": "Store", "name": "Dossier d'Éclat"}}
       }
@@ -67,6 +69,8 @@
       "item": {
         "@type": "Product",
         "name": "PHLUR Missing Person EDP",
+        "image": "https://www.sephora.com/productimages/sku/s2568350-main-zoom.jpg",
+        "description": "Skin musk · Bergamot, jasmine & blonde wood. Evokes the lingering scent of your lover's skin.",
         "brand": {"@type": "Brand", "name": "PHLUR"},
         "offers": {"@type": "Offer", "price": "250", "priceCurrency": "GHS", "availability": "https://schema.org/InStock", "seller": {"@type": "Store", "name": "Dossier d'Éclat"}}
       }
@@ -108,6 +112,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500&display=swap"
     rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <link rel="stylesheet" href="shared.css">
   <link rel="stylesheet" href="cart.css">
 
@@ -527,7 +532,7 @@
 <body>
 
   <a href="https://wa.me/233551411783" target="_blank" class="float-wa">
-    <span class="float-wa-tooltip">Order on WhatsApp</span>💬
+    <span class="float-wa-tooltip">Order on WhatsApp</span><i class="fa-brands fa-whatsapp"></i>
   </a>
 
   <!-- NAV -->
@@ -542,7 +547,7 @@
     </ul>
     <div class="nav-right">
       <button class="nav-cart-toggle" id="cartToggleBtn" aria-label="View Cart">
-        <span class="cart-icon-wrapper">🛒</span>
+        <span class="cart-icon-wrapper"><i class="fa-solid fa-bag-shopping"></i></span>
         <span class="cart-badge" id="cartBadge" style="display:none">0</span>
       </button>
       <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
@@ -555,9 +560,9 @@
     <a href="shop.html" onclick="closeMenu()">Shop</a>
     <a href="index.html#reviews" onclick="closeMenu()">Reviews</a>
     <a href="index.html#contact" onclick="closeMenu()">Contact</a>
-    <a href="#" id="mobileCartToggle" onclick="closeMenu()" class="mobile-cart-link">🛒 View Cart <span
+    <a href="#" id="mobileCartToggle" onclick="closeMenu()" class="mobile-cart-link"><i class="fa-solid fa-bag-shopping"></i> View Cart <span
         id="mobileCartBadge">(0)</span></a>
-    <a href="https://wa.me/233551411783" target="_blank" style="color:#25D366">💬 WhatsApp: 0551411783</a>
+    <a href="https://wa.me/233551411783" target="_blank" style="color:#25D366"><i class="fa-brands fa-whatsapp"></i> WhatsApp: 0551411783</a>
   </div>
 
   <!-- SHOP HERO -->
@@ -592,9 +597,9 @@
   <footer>
     <div class="footer-bottom-strip">
       <a href="index.html" class="footer-back">← Back to Home</a>
-      <p>© 2026 Dossier d'Eclat · All rights reserved · Built with 💖</p>
+      <p>© 2026 Dossier d'Eclat · All rights reserved · Built with <i class="fa-solid fa-heart" style="color:#F2C4CE"></i></p>
       <a href="https://wa.me/233551411783" target="_blank"
-        style="font-size:0.75rem;color:#25D366;text-decoration:none;font-weight:500">💬 0551 411 783</a>
+        style="font-size:0.75rem;color:#25D366;text-decoration:none;font-weight:500"><i class="fa-brands fa-whatsapp"></i> 0551 411 783</a>
     </div>
   </footer>
 
@@ -637,7 +642,7 @@
       </div>
       <button class="cart-checkout-btn" id="cartCheckoutBtn">
         <span>Checkout via WhatsApp</span>
-        <span class="cart-checkout-icon">💬</span>
+        <span class="cart-checkout-icon"><i class="fa-brands fa-whatsapp"></i></span>
       </button>
     </div>
   </div>
