@@ -417,6 +417,13 @@
   transform: translateY(0);
 }
 
+.cart-payment-note {
+  text-align: center;
+  font-size: 0.68rem;
+  color: #8A6358;
+  margin-top: 0.7rem;
+}
+
 .cart-checkout-icon {
   font-size: 0.95rem;
 }
