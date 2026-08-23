@@ -427,6 +427,65 @@
       background: var(--pink-light);
     }
 
+    .variant-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.6rem;
+      padding: 0.6rem;
+      border: 1px solid var(--pink-light);
+      border-radius: 10px;
+    }
+
+    .variant-photo-preview {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: var(--pink-light);
+      flex-shrink: 0;
+      display: none;
+    }
+
+    .variant-photo-input {
+      width: 90px;
+      flex-shrink: 0;
+      font-size: 0.62rem;
+      padding: 0.4rem 0.3rem;
+      margin-bottom: 0;
+    }
+
+    .variant-label-input {
+      flex: 1;
+      min-width: 0;
+      margin-bottom: 0;
+    }
+
+    .variant-instock-label {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.7rem;
+      color: var(--brown-light);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .variant-remove-btn {
+      background: none;
+      border: none;
+      color: #B85C5C;
+      font-size: 1rem;
+      cursor: pointer;
+      flex-shrink: 0;
+      padding: 0.2rem 0.4rem;
+      line-height: 1;
+    }
+
+    .variant-remove-btn:hover {
+      color: #8A3A3A;
+    }
+
     /* TOAST (replaces native alert()) */
     .toast {
       position: fixed;
@@ -707,6 +766,10 @@
           <input class="field-input" type="file" id="pfPhoto3" accept="image/*">
         </div>
       </div>
+
+      <label class="field-label">Shades / Flavors (optional — leave empty for a single-option product)</label>
+      <div id="variantsList"></div>
+      <button type="button" class="btn btn-outline btn-small" id="addVariantBtn" style="margin-bottom:1.1rem">+ Add a Shade</button>
 
       <div class="checkbox-row">
         <input type="checkbox" id="pfInStock" checked>

@@ -150,3 +150,42 @@ create policy "Logged-in users can delete orders"
   on orders for delete
   to authenticated
   using (true);
+
+-- ── PRODUCT VARIANTS: optional shades/flavors per product ────────────
+-- Entirely optional — a product with zero rows here still sells exactly
+-- as before. Added/edited from the product's Edit form in the admin
+-- panel; the shop page shows a shade picker instead of an instant Add to
+-- Cart for any product that has rows here.
+create table if not exists product_variants (
+  id bigint generated always as identity primary key,
+  product_id bigint not null references products(id) on delete cascade,
+  label text not null check (char_length(label) between 1 and 60),
+  image_url text,
+  in_stock boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+alter table product_variants enable row level security;
+
+drop policy if exists "Public can read variants" on product_variants;
+create policy "Public can read variants"
+  on product_variants for select
+  using (true);
+
+drop policy if exists "Logged-in users can add variants" on product_variants;
+create policy "Logged-in users can add variants"
+  on product_variants for insert
+  to authenticated
+  with check (true);
+
+drop policy if exists "Logged-in users can edit variants" on product_variants;
+create policy "Logged-in users can edit variants"
+  on product_variants for update
+  to authenticated
+  using (true);
+
+drop policy if exists "Logged-in users can delete variants" on product_variants;
+create policy "Logged-in users can delete variants"
+  on product_variants for delete
+  to authenticated
+  using (true);

@@ -55,6 +55,15 @@ function productCardHtml(product, index) {
   const icon = product.fallback_icon || DEFAULT_FALLBACK_ICON;
   const searchText = `${product.name} ${product.brand} ${product.description}`.toLowerCase();
 
+  const variants = variantsByProduct[product.id] || [];
+  const hasVariants = variants.length > 0;
+  const variantHint = hasVariants
+    ? `<p class="product-variant-hint">${variants.length} option${variants.length !== 1 ? 's' : ''} available</p>`
+    : '';
+  const footerBtn = hasVariants
+    ? `<button class="product-btn choose-variant-btn"${soldOut ? ' disabled' : ''}>${soldOut ? 'Sold Out' : 'Select Options'}</button>`
+    : `<button class="product-btn add-to-cart-btn"${soldOut ? ' disabled' : ''}>${soldOut ? 'Sold Out' : 'Add to Cart'}</button>`;
+
   return `
       <div class="product-card${soldOut ? ' sold-out' : ''}" data-cat="${escapeHtml(product.category)}" data-search="${escapeHtml(searchText)}" data-product-id="${escapeHtml(product.id)}">
         <div class="product-img" style="background:${bg}">
@@ -66,15 +75,17 @@ function productCardHtml(product, index) {
           <p class="product-brand">${escapeHtml(product.brand)}</p>
           <h3 class="product-name">${escapeHtml(product.name)}</h3>
           <p class="product-desc">${escapeHtml(product.description)}</p>
+          ${variantHint}
           <div class="product-footer">
             <span class="product-price">GHS ${product.price}</span>
-            <button class="product-btn add-to-cart-btn"${soldOut ? ' disabled' : ''}>${soldOut ? 'Sold Out' : 'Add to Cart'}</button>
+            ${footerBtn}
           </div>
         </div>
       </div>`;
 }
 
 let productsCache = [];
+let variantsByProduct = {};
 
 async function loadProducts() {
   const grid = document.getElementById('productsGrid');
@@ -101,6 +112,17 @@ async function loadProducts() {
   const products = data || [];
   productsCache = products;
 
+  let variantRows = [];
+  try {
+    ({ data: variantRows } = await supabaseClient.from('product_variants').select('*').order('id'));
+  } catch (e) {
+    console.error('Failed to load product variants', e);
+  }
+  variantsByProduct = {};
+  (variantRows || []).forEach(v => {
+    (variantsByProduct[v.product_id] = variantsByProduct[v.product_id] || []).push(v);
+  });
+
   grid.innerHTML = products.map(productCardHtml).join('') + `
       <div class="empty-state" id="emptyState">
         <p>No products in this category yet. More coming soon.</p>
@@ -118,28 +140,81 @@ async function loadProducts() {
 }
 
 // ── QUICK VIEW ────────────────────────────────────────────
-// Tapping a product card (anywhere but the Add to Cart button/dots)
-// opens a bigger-photo popup with the full description.
+// Tapping a product card (anywhere but the Add to Cart/Select Options
+// button or photo dots) opens a bigger-photo popup with the full
+// description, and — for a product with shades/flavors — a picker to
+// choose one before it can be added to the cart.
 
-function openQuickView(product) {
+let currentQuickViewProduct = null;
+let currentQuickViewVariants = [];
+let selectedVariant = null;
+
+function renderQuickViewMedia() {
+  const product = currentQuickViewProduct;
   const soldOut = !product.in_stock;
-  const images = [product.image_url, product.image_url_2, product.image_url_3].filter(Boolean);
-  const hasImage = images.length > 0;
   const icon = product.fallback_icon || DEFAULT_FALLBACK_ICON;
+
+  // A shade with its own photo takes over the gallery; otherwise fall
+  // back to the product's own photos.
+  const images = (selectedVariant && selectedVariant.image_url)
+    ? [selectedVariant.image_url]
+    : [product.image_url, product.image_url_2, product.image_url_3].filter(Boolean);
+  const hasImage = images.length > 0;
 
   document.getElementById('qvMedia').innerHTML = `
     ${productImagesHtml(images, product.name)}
     <div class="product-icon-fallback" style="display:${hasImage ? 'none' : 'flex'}" data-icon="${escapeHtml(icon)}"><i class="${escapeHtml(icon)}"></i></div>
     ${soldOut ? '<span class="product-tag sold-out">Sold Out</span>' : (product.tag ? `<span class="product-tag">${escapeHtml(product.tag)}</span>` : '')}
   `;
+}
+
+function renderQuickViewVariantPicker() {
+  const container = document.getElementById('qvVariants');
+  if (currentQuickViewVariants.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+  container.innerHTML = `
+    <p class="qv-variant-label">Shade: <strong>${escapeHtml(selectedVariant.label)}</strong>${!selectedVariant.in_stock ? ' (Sold Out)' : ''}</p>
+    <div class="qv-variant-options">
+      ${currentQuickViewVariants.map(v => `
+        <button type="button" class="qv-variant-btn${v.id === selectedVariant.id ? ' active' : ''}${!v.in_stock ? ' out-of-stock' : ''}" data-variant-id="${v.id}" title="${escapeHtml(v.label)}${!v.in_stock ? ' (Sold Out)' : ''}">
+          ${v.image_url ? `<img src="${escapeHtml(v.image_url)}" alt="${escapeHtml(v.label)}">` : `<span class="qv-variant-swatch-label">${escapeHtml(v.label.slice(0, 2))}</span>`}
+        </button>
+      `).join('')}
+    </div>
+  `;
+}
+
+function updateQvAddButton() {
+  const btn = document.getElementById('qvAddBtn');
+  const product = currentQuickViewProduct;
+  const soldOut = !product.in_stock || (selectedVariant ? !selectedVariant.in_stock : false);
+  btn.disabled = soldOut;
+  btn.textContent = soldOut ? 'Sold Out' : 'Add to Cart';
+  if (selectedVariant) {
+    btn.dataset.id = product.id + '-' + selectedVariant.id;
+    btn.dataset.variant = selectedVariant.label;
+  } else {
+    delete btn.dataset.id;
+    delete btn.dataset.variant;
+  }
+}
+
+function openQuickView(product) {
+  currentQuickViewProduct = product;
+  currentQuickViewVariants = variantsByProduct[product.id] || [];
+  selectedVariant = currentQuickViewVariants[0] || null;
+
+  renderQuickViewMedia();
+  renderQuickViewVariantPicker();
+
   document.getElementById('qvBrand').textContent = product.brand;
   document.getElementById('qvName').textContent = product.name;
   document.getElementById('qvDesc').textContent = product.description;
   document.getElementById('qvPrice').textContent = 'GHS ' + product.price;
 
-  const addBtn = document.getElementById('qvAddBtn');
-  addBtn.disabled = soldOut;
-  addBtn.textContent = soldOut ? 'Sold Out' : 'Add to Cart';
+  updateQvAddButton();
 
   document.getElementById('quickViewOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -149,6 +224,16 @@ function closeQuickView() {
   document.getElementById('quickViewOverlay').classList.remove('open');
   document.body.style.overflow = '';
 }
+
+document.getElementById('qvVariants').addEventListener('click', (e) => {
+  const btn = e.target.closest('.qv-variant-btn');
+  if (!btn) return;
+  const variantId = Number(btn.dataset.variantId);
+  selectedVariant = currentQuickViewVariants.find(v => v.id === variantId) || selectedVariant;
+  renderQuickViewMedia();
+  renderQuickViewVariantPicker();
+  updateQvAddButton();
+});
 
 document.getElementById('productsGrid').addEventListener('click', (e) => {
   if (e.target.closest('.add-to-cart-btn') || e.target.closest('.product-img-dot')) return;

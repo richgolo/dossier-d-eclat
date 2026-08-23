@@ -7,6 +7,7 @@
 
 drop table if exists orders;
 drop table if exists reviews;
+drop table if exists product_variants;
 drop table if exists products;
 
 -- ── PRODUCTS ──────────────────────────────────────────────
@@ -57,6 +58,42 @@ create policy "Logged-in users can delete products"
   using (true);
 -- Writes require a logged-in user (created via Authentication → Users →
 -- Add user) — the public website/API key can only ever read this table.
+
+-- ── PRODUCT VARIANTS ──────────────────────────────────────
+-- Optional shades/flavors/colors for a product (e.g. a lipgloss sold in
+-- several shades) — entirely optional, added from the product's Edit form
+-- in the admin panel. A product with zero rows here just sells as-is, same
+-- as before this table existed; one with rows shows a shade picker on the
+-- shop page instead of an instant Add to Cart.
+create table product_variants (
+  id bigint generated always as identity primary key,
+  product_id bigint not null references products(id) on delete cascade,
+  label text not null check (char_length(label) between 1 and 60), -- e.g. "Cherry Red"
+  image_url text,                       -- optional photo of this specific shade; falls back to the product's own photos if blank
+  in_stock boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+alter table product_variants enable row level security;
+
+create policy "Public can read variants"
+  on product_variants for select
+  using (true);
+
+create policy "Logged-in users can add variants"
+  on product_variants for insert
+  to authenticated
+  with check (true);
+
+create policy "Logged-in users can edit variants"
+  on product_variants for update
+  to authenticated
+  using (true);
+
+create policy "Logged-in users can delete variants"
+  on product_variants for delete
+  to authenticated
+  using (true);
 
 -- ── REVIEWS ───────────────────────────────────────────────
 -- Visitors submit reviews from the website. New reviews start hidden

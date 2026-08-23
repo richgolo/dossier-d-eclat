@@ -221,6 +221,11 @@
   line-height: 1.25;
 }
 
+.cart-item-variant {
+  font-size: 0.7rem;
+  color: #8A6358;
+}
+
 .cart-item-price-unit {
   font-size: 0.72rem;
   color: #8A6358;

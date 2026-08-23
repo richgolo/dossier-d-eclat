@@ -10,6 +10,7 @@ let editingProductId = null;
 let editingProductImageUrl = null;
 let editingProductImageUrl2 = null;
 let editingProductImageUrl3 = null;
+let deletedVariantIds = [];
 
 const DEFAULT_FALLBACK_ICON = 'fa-solid fa-heart';
 
@@ -122,7 +123,10 @@ let productsCache = [];
 
 async function loadProducts() {
   const list = document.getElementById('productsList');
-  const { data, error } = await supabaseClient.from('products').select('*').order('created_at');
+  const [{ data, error }, { data: variantRows }] = await Promise.all([
+    supabaseClient.from('products').select('*').order('created_at'),
+    supabaseClient.from('product_variants').select('product_id')
+  ]);
 
   if (error) {
     list.innerHTML = `<p class="empty-msg">Couldn't load products: ${error.message}</p>`;
@@ -130,6 +134,9 @@ async function loadProducts() {
   }
 
   productsCache = data || [];
+
+  const variantCounts = {};
+  (variantRows || []).forEach(v => { variantCounts[v.product_id] = (variantCounts[v.product_id] || 0) + 1; });
 
   if (productsCache.length === 0) {
     list.innerHTML = '<p class="empty-msg">No products yet.</p>';
@@ -143,7 +150,7 @@ async function loadProducts() {
       </div>
       <div class="row-info">
         <div class="name">${escapeHtml(p.name)}${!p.in_stock ? '<span class="sold-out-pill">Sold Out</span>' : ''}${p.featured ? '<span class="featured-pill">Featured</span>' : ''}</div>
-        <div class="meta">${escapeHtml(p.brand)} · ${CATEGORY_LABELS[p.category] || p.category} · GHS ${p.price}</div>
+        <div class="meta">${escapeHtml(p.brand)} · ${CATEGORY_LABELS[p.category] || p.category} · GHS ${p.price}${variantCounts[p.id] ? ` · ${variantCounts[p.id]} shades` : ''}</div>
       </div>
       <div class="row-actions">
         <button class="btn btn-outline btn-small" onclick="editProduct(${p.id})">Edit</button>
@@ -164,11 +171,84 @@ function setPhotoSlotPreview(slotNum, url) {
   }
 }
 
-function openProductForm(product) {
+// ── PRODUCT VARIANTS (shades/flavors) ──────────────────────
+
+function variantRowHtml(v) {
+  v = v || {};
+  const hasImage = Boolean(v.image_url);
+  return `
+    <div class="variant-row" data-existing-id="${v.id || ''}" data-existing-image="${escapeHtml(v.image_url || '')}">
+      <img class="variant-photo-preview" src="${escapeHtml(v.image_url || '')}" style="display:${hasImage ? 'block' : 'none'}" alt="">
+      <input class="field-input variant-photo-input" type="file" accept="image/*">
+      <input class="field-input variant-label-input" type="text" placeholder="e.g. Cherry Red" maxlength="60" value="${escapeHtml(v.label || '')}">
+      <label class="variant-instock-label"><input type="checkbox" class="variant-instock-input" ${v.in_stock !== false ? 'checked' : ''}> In stock</label>
+      <button type="button" class="variant-remove-btn" aria-label="Remove shade"><i class="fa-solid fa-xmark"></i></button>
+    </div>`;
+}
+
+function addVariantRow(v) {
+  document.getElementById('variantsList').insertAdjacentHTML('beforeend', variantRowHtml(v));
+}
+
+document.getElementById('addVariantBtn').addEventListener('click', () => addVariantRow(null));
+
+document.getElementById('variantsList').addEventListener('click', (e) => {
+  const removeBtn = e.target.closest('.variant-remove-btn');
+  if (!removeBtn) return;
+  const row = removeBtn.closest('.variant-row');
+  const existingId = row.dataset.existingId;
+  if (existingId) deletedVariantIds.push(Number(existingId));
+  row.remove();
+});
+
+document.getElementById('variantsList').addEventListener('change', (e) => {
+  if (!e.target.classList.contains('variant-photo-input')) return;
+  const file = e.target.files[0];
+  if (!file) return;
+  const row = e.target.closest('.variant-row');
+  const preview = row.querySelector('.variant-photo-preview');
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = 'block';
+});
+
+async function syncVariants(productId) {
+  const rows = document.querySelectorAll('#variantsList .variant-row');
+
+  for (const row of rows) {
+    const existingId = row.dataset.existingId ? Number(row.dataset.existingId) : null;
+    const label = row.querySelector('.variant-label-input').value.trim();
+    const in_stock = row.querySelector('.variant-instock-input').checked;
+    const file = row.querySelector('.variant-photo-input').files[0];
+    if (!label) continue; // blank row — nothing to save
+
+    let image_url = row.dataset.existingImage || null;
+    if (file) {
+      const path = `variant-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
+      const { error: uploadError } = await supabaseClient.storage.from('product-photos').upload(path, file);
+      if (!uploadError) {
+        image_url = supabaseClient.storage.from('product-photos').getPublicUrl(path).data.publicUrl;
+      }
+    }
+
+    if (existingId) {
+      await supabaseClient.from('product_variants').update({ label, image_url, in_stock }).eq('id', existingId);
+    } else {
+      await supabaseClient.from('product_variants').insert({ product_id: productId, label, image_url, in_stock });
+    }
+  }
+
+  for (const id of deletedVariantIds) {
+    await supabaseClient.from('product_variants').delete().eq('id', id);
+  }
+  deletedVariantIds = [];
+}
+
+async function openProductForm(product) {
   editingProductId = product ? product.id : null;
   editingProductImageUrl = product ? product.image_url : null;
   editingProductImageUrl2 = product ? product.image_url_2 : null;
   editingProductImageUrl3 = product ? product.image_url_3 : null;
+  deletedVariantIds = [];
 
   document.getElementById('productModalTitle').textContent = product ? 'Edit Product' : 'Add Product';
   document.getElementById('pfName').value = product ? product.name : '';
@@ -185,6 +265,13 @@ function openProductForm(product) {
   setPhotoSlotPreview(1, product ? product.image_url : null);
   setPhotoSlotPreview(2, product ? product.image_url_2 : null);
   setPhotoSlotPreview(3, product ? product.image_url_3 : null);
+
+  const variantsList = document.getElementById('variantsList');
+  variantsList.innerHTML = '';
+  if (product) {
+    const { data: variants } = await supabaseClient.from('product_variants').select('*').eq('product_id', product.id).order('id');
+    (variants || []).forEach(v => addVariantRow(v));
+  }
 
   document.getElementById('productModal').classList.add('open');
 }
@@ -251,18 +338,22 @@ document.getElementById('saveProductBtn').addEventListener('click', async () => 
 
   const row = { name, brand, category, price, description, tag, fallback_icon, in_stock, featured, image_url, image_url_2, image_url_3 };
 
-  const { error } = editingProductId
-    ? await supabaseClient.from('products').update(row).eq('id', editingProductId)
-    : await supabaseClient.from('products').insert(row);
-
-  saveBtn.disabled = false;
-  saveBtn.textContent = 'Save';
+  const { data: savedProduct, error } = editingProductId
+    ? await supabaseClient.from('products').update(row).eq('id', editingProductId).select().single()
+    : await supabaseClient.from('products').insert(row).select().single();
 
   if (error) {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save';
     errorEl.textContent = 'Could not save: ' + error.message;
     errorEl.style.display = 'block';
     return;
   }
+
+  await syncVariants(savedProduct.id);
+
+  saveBtn.disabled = false;
+  saveBtn.textContent = 'Save';
 
   document.getElementById('productModal').classList.remove('open');
   loadProducts();

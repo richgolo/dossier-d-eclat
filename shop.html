@@ -565,6 +565,70 @@
       transform: scale(1.08)
     }
 
+    /* VARIANT PICKER (grid card hint + quick view shade/flavor picker) */
+    .product-variant-hint {
+      font-size: 0.68rem;
+      color: var(--pink-deep);
+      margin: -0.5rem 0 0.7rem;
+      font-weight: 500
+    }
+
+    .qv-variant-label {
+      font-size: 0.75rem;
+      color: #8A6358;
+      margin-bottom: 0.6rem;
+      font-weight: 500
+    }
+
+    .qv-variant-label strong {
+      color: var(--brown)
+    }
+
+    .qv-variant-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.3rem
+    }
+
+    .qv-variant-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      border: 2px solid transparent;
+      padding: 0;
+      overflow: hidden;
+      cursor: pointer;
+      background: var(--pink-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s, transform 0.2s
+    }
+
+    .qv-variant-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover
+    }
+
+    .qv-variant-btn.active {
+      border-color: var(--brown);
+      transform: scale(1.06)
+    }
+
+    .qv-variant-btn.out-of-stock {
+      opacity: 0.4;
+      cursor: not-allowed
+    }
+
+    .qv-variant-swatch-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--brown)
+    }
+
     /* LOAD / ERROR STATE */
     .products-loading,
     .products-error {
@@ -780,6 +844,7 @@
         <p class="product-brand" id="qvBrand"></p>
         <h3 class="product-name" id="qvName"></h3>
         <p class="product-desc" id="qvDesc"></p>
+        <div id="qvVariants"></div>
         <div class="product-footer">
           <span class="product-price" id="qvPrice"></span>
           <button class="product-btn add-to-cart-btn" id="qvAddBtn">Add to Cart</button>

@@ -60,6 +60,7 @@ class DossierCart {
         id: product.id,
         name: product.name,
         brand: product.brand || "",
+        variant: product.variant || "",
         price: parseFloat(product.price),
         img: product.img || "",
         fallbackIcon: product.fallbackIcon || "fa-solid fa-heart",
@@ -151,7 +152,8 @@ class DossierCart {
           brand: dataset.brand || source?.querySelector(".product-brand")?.textContent || "Dossier d'Éclat",
           price: dataset.price || source?.querySelector(".product-price")?.textContent.replace(/[^0-9.]/g, "") || "0",
           img: dataset.img || source?.querySelector(".product-img img")?.src || "",
-          fallbackIcon: dataset.fallbackIcon || source?.querySelector(".product-icon-fallback")?.dataset.icon || "fa-solid fa-heart"
+          fallbackIcon: dataset.fallbackIcon || source?.querySelector(".product-icon-fallback")?.dataset.icon || "fa-solid fa-heart",
+          variant: dataset.variant || ""
         };
 
         this.addItem(product);
@@ -212,7 +214,8 @@ class DossierCart {
 
     this.items.forEach(item => {
       const itemSubtotal = item.price * item.quantity;
-      text += `• ${item.quantity}x ${item.name} (${item.brand}) - GHS ${itemSubtotal}\n`;
+      const variantPart = item.variant ? ` - ${item.variant}` : "";
+      text += `• ${item.quantity}x ${item.name}${variantPart} (${item.brand}) - GHS ${itemSubtotal}\n`;
     });
 
     text += `\n*Total Amount:* GHS ${this.getTotalPrice()}\n\n`;
@@ -231,7 +234,7 @@ class DossierCart {
     if (typeof supabaseClient === "undefined" || !supabaseClient) return;
     try {
       const items = this.items.map(item => ({
-        name: item.name,
+        name: item.variant ? `${item.name} - ${item.variant}` : item.name,
         brand: item.brand,
         price: item.price,
         quantity: item.quantity
@@ -308,6 +311,7 @@ class DossierCart {
             <div class="cart-item-details">
               <span class="cart-item-brand">${escapeHtml(item.brand)}</span>
               <span class="cart-item-name">${escapeHtml(item.name)}</span>
+              ${item.variant ? `<span class="cart-item-variant">Shade: ${escapeHtml(item.variant)}</span>` : ''}
               <span class="cart-item-price-unit">GHS ${item.price} each</span>
               <div class="cart-item-qty">
                 <button class="qty-btn minus" data-id="${escapeHtml(item.id)}">-</button>
