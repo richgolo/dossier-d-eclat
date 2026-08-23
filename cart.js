@@ -142,15 +142,16 @@ class DossierCart {
       if (btn) {
         e.preventDefault();
         const dataset = btn.dataset;
-        
+        const source = btn.closest(".product-card, .quickview-panel");
+
         // Extract product details
         const product = {
-          id: dataset.id || btn.closest(".product-card")?.querySelector(".product-name")?.textContent.toLowerCase().replace(/[^a-z0-9]+/g, "-") || Math.random().toString(),
-          name: dataset.name || btn.closest(".product-card")?.querySelector(".product-name")?.textContent || "Beauty Essential",
-          brand: dataset.brand || btn.closest(".product-card")?.querySelector(".product-brand")?.textContent || "Dossier d'Éclat",
-          price: dataset.price || btn.closest(".product-card")?.querySelector(".product-price")?.textContent.replace(/[^0-9.]/g, "") || "0",
-          img: dataset.img || btn.closest(".product-card")?.querySelector(".product-img img")?.src || "",
-          fallbackIcon: dataset.fallbackIcon || btn.closest(".product-card")?.querySelector(".product-icon-fallback")?.dataset.icon || "fa-solid fa-heart"
+          id: dataset.id || source?.querySelector(".product-name")?.textContent.toLowerCase().replace(/[^a-z0-9]+/g, "-") || Math.random().toString(),
+          name: dataset.name || source?.querySelector(".product-name")?.textContent || "Beauty Essential",
+          brand: dataset.brand || source?.querySelector(".product-brand")?.textContent || "Dossier d'Éclat",
+          price: dataset.price || source?.querySelector(".product-price")?.textContent.replace(/[^0-9.]/g, "") || "0",
+          img: dataset.img || source?.querySelector(".product-img img")?.src || "",
+          fallbackIcon: dataset.fallbackIcon || source?.querySelector(".product-icon-fallback")?.dataset.icon || "fa-solid fa-heart"
         };
 
         this.addItem(product);

@@ -56,7 +56,7 @@ function productCardHtml(product, index) {
   const searchText = `${product.name} ${product.brand} ${product.description}`.toLowerCase();
 
   return `
-      <div class="product-card${soldOut ? ' sold-out' : ''}" data-cat="${escapeHtml(product.category)}" data-search="${escapeHtml(searchText)}">
+      <div class="product-card${soldOut ? ' sold-out' : ''}" data-cat="${escapeHtml(product.category)}" data-search="${escapeHtml(searchText)}" data-product-id="${escapeHtml(product.id)}">
         <div class="product-img" style="background:${bg}">
           ${imgTag}
           <div class="product-icon-fallback" style="display:${hasImage ? 'none' : 'flex'}" data-icon="${escapeHtml(icon)}"><i class="${escapeHtml(icon)}"></i></div>
@@ -73,6 +73,8 @@ function productCardHtml(product, index) {
         </div>
       </div>`;
 }
+
+let productsCache = [];
 
 async function loadProducts() {
   const grid = document.getElementById('productsGrid');
@@ -97,6 +99,7 @@ async function loadProducts() {
   }
 
   const products = data || [];
+  productsCache = products;
 
   grid.innerHTML = products.map(productCardHtml).join('') + `
       <div class="empty-state" id="emptyState">
@@ -113,5 +116,55 @@ async function loadProducts() {
     if (tab) filterCat(urlCat, tab);
   }
 }
+
+// ── QUICK VIEW ────────────────────────────────────────────
+// Tapping a product card (anywhere but the Add to Cart button/dots)
+// opens a bigger-photo popup with the full description.
+
+function openQuickView(product) {
+  const soldOut = !product.in_stock;
+  const images = [product.image_url, product.image_url_2, product.image_url_3].filter(Boolean);
+  const hasImage = images.length > 0;
+  const icon = product.fallback_icon || DEFAULT_FALLBACK_ICON;
+
+  document.getElementById('qvMedia').innerHTML = `
+    ${productImagesHtml(images, product.name)}
+    <div class="product-icon-fallback" style="display:${hasImage ? 'none' : 'flex'}" data-icon="${escapeHtml(icon)}"><i class="${escapeHtml(icon)}"></i></div>
+    ${soldOut ? '<span class="product-tag sold-out">Sold Out</span>' : (product.tag ? `<span class="product-tag">${escapeHtml(product.tag)}</span>` : '')}
+  `;
+  document.getElementById('qvBrand').textContent = product.brand;
+  document.getElementById('qvName').textContent = product.name;
+  document.getElementById('qvDesc').textContent = product.description;
+  document.getElementById('qvPrice').textContent = 'GHS ' + product.price;
+
+  const addBtn = document.getElementById('qvAddBtn');
+  addBtn.disabled = soldOut;
+  addBtn.textContent = soldOut ? 'Sold Out' : 'Add to Cart';
+
+  document.getElementById('quickViewOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeQuickView() {
+  document.getElementById('quickViewOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('productsGrid').addEventListener('click', (e) => {
+  if (e.target.closest('.add-to-cart-btn') || e.target.closest('.product-img-dot')) return;
+  const card = e.target.closest('.product-card');
+  if (!card) return;
+  const product = productsCache.find(p => String(p.id) === card.dataset.productId);
+  if (product) openQuickView(product);
+});
+
+document.getElementById('qvAddBtn').addEventListener('click', () => closeQuickView());
+document.getElementById('quickViewClose').addEventListener('click', closeQuickView);
+document.getElementById('quickViewOverlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeQuickView();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeQuickView();
+});
 
 loadProducts();
