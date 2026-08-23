@@ -400,12 +400,29 @@
       margin-top: 0.5rem;
     }
 
-    .current-photo-preview {
+    .photo-upload-row {
+      display: flex;
+      gap: 0.6rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .photo-upload-slot {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .photo-upload-slot .field-input {
+      font-size: 0.68rem;
+      padding: 0.6rem 0.4rem;
+    }
+
+    .photo-slot-preview {
       width: 100%;
-      max-height: 140px;
+      height: 80px;
       object-fit: contain;
       border-radius: 10px;
-      margin-bottom: 0.8rem;
+      margin-bottom: 0.4rem;
       display: none;
       background: var(--pink-light);
     }
@@ -628,7 +645,6 @@
   <div class="modal-overlay" id="productModal">
     <div class="modal-card">
       <h2 id="productModalTitle">Add Product</h2>
-      <img class="current-photo-preview" id="currentPhotoPreview" alt="Current product photo">
 
       <label class="field-label" for="pfName">Name</label>
       <input class="field-input" type="text" id="pfName">
@@ -676,8 +692,21 @@
         </div>
       </div>
 
-      <label class="field-label" for="pfPhoto">Photo (leave blank to keep current)</label>
-      <input class="field-input" type="file" id="pfPhoto" accept="image/*">
+      <label class="field-label">Photos (up to 3 — first is the main image; leave any blank to keep current)</label>
+      <div class="photo-upload-row">
+        <div class="photo-upload-slot">
+          <img class="photo-slot-preview" id="currentPhotoPreview1" alt="Photo 1 preview">
+          <input class="field-input" type="file" id="pfPhoto1" accept="image/*">
+        </div>
+        <div class="photo-upload-slot">
+          <img class="photo-slot-preview" id="currentPhotoPreview2" alt="Photo 2 preview">
+          <input class="field-input" type="file" id="pfPhoto2" accept="image/*">
+        </div>
+        <div class="photo-upload-slot">
+          <img class="photo-slot-preview" id="currentPhotoPreview3" alt="Photo 3 preview">
+          <input class="field-input" type="file" id="pfPhoto3" accept="image/*">
+        </div>
+      </div>
 
       <div class="checkbox-row">
         <input type="checkbox" id="pfInStock" checked>

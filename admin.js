@@ -8,6 +8,8 @@ const adminView = document.getElementById('adminView');
 
 let editingProductId = null;
 let editingProductImageUrl = null;
+let editingProductImageUrl2 = null;
+let editingProductImageUrl3 = null;
 
 const DEFAULT_FALLBACK_ICON = 'fa-solid fa-heart';
 
@@ -151,9 +153,22 @@ async function loadProducts() {
   `).join('');
 }
 
+function setPhotoSlotPreview(slotNum, url) {
+  const preview = document.getElementById('currentPhotoPreview' + slotNum);
+  document.getElementById('pfPhoto' + slotNum).value = '';
+  if (url) {
+    preview.src = url;
+    preview.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
+  }
+}
+
 function openProductForm(product) {
   editingProductId = product ? product.id : null;
   editingProductImageUrl = product ? product.image_url : null;
+  editingProductImageUrl2 = product ? product.image_url_2 : null;
+  editingProductImageUrl3 = product ? product.image_url_3 : null;
 
   document.getElementById('productModalTitle').textContent = product ? 'Edit Product' : 'Add Product';
   document.getElementById('pfName').value = product ? product.name : '';
@@ -165,16 +180,11 @@ function openProductForm(product) {
   document.getElementById('pfFallbackIcon').value = product ? (product.fallback_icon || DEFAULT_FALLBACK_ICON) : DEFAULT_FALLBACK_ICON;
   document.getElementById('pfInStock').checked = product ? product.in_stock : true;
   document.getElementById('pfFeatured').checked = product ? Boolean(product.featured) : false;
-  document.getElementById('pfPhoto').value = '';
   document.getElementById('productFormError').style.display = 'none';
 
-  const preview = document.getElementById('currentPhotoPreview');
-  if (product && product.image_url) {
-    preview.src = product.image_url;
-    preview.style.display = 'block';
-  } else {
-    preview.style.display = 'none';
-  }
+  setPhotoSlotPreview(1, product ? product.image_url : null);
+  setPhotoSlotPreview(2, product ? product.image_url_2 : null);
+  setPhotoSlotPreview(3, product ? product.image_url_3 : null);
 
   document.getElementById('productModal').classList.add('open');
 }
@@ -202,7 +212,6 @@ document.getElementById('saveProductBtn').addEventListener('click', async () => 
   const fallback_icon = document.getElementById('pfFallbackIcon').value || DEFAULT_FALLBACK_ICON;
   const in_stock = document.getElementById('pfInStock').checked;
   const featured = document.getElementById('pfFeatured').checked;
-  const file = document.getElementById('pfPhoto').files[0];
 
   if (!name || !brand || isNaN(price)) {
     errorEl.textContent = 'Name, brand, and a valid price are required.';
@@ -214,22 +223,33 @@ document.getElementById('saveProductBtn').addEventListener('click', async () => 
   saveBtn.disabled = true;
   saveBtn.textContent = 'Saving…';
 
-  let image_url = editingProductImageUrl;
+  const slots = [
+    { file: document.getElementById('pfPhoto1').files[0], current: editingProductImageUrl },
+    { file: document.getElementById('pfPhoto2').files[0], current: editingProductImageUrl2 },
+    { file: document.getElementById('pfPhoto3').files[0], current: editingProductImageUrl3 }
+  ];
+  const urls = [];
 
-  if (file) {
-    const path = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
-    const { error: uploadError } = await supabaseClient.storage.from('product-photos').upload(path, file);
-    if (uploadError) {
-      errorEl.textContent = 'Photo upload failed: ' + uploadError.message;
-      errorEl.style.display = 'block';
-      saveBtn.disabled = false;
-      saveBtn.textContent = 'Save';
-      return;
+  for (const slot of slots) {
+    if (slot.file) {
+      const path = `${Date.now()}-${slot.file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
+      const { error: uploadError } = await supabaseClient.storage.from('product-photos').upload(path, slot.file);
+      if (uploadError) {
+        errorEl.textContent = 'Photo upload failed: ' + uploadError.message;
+        errorEl.style.display = 'block';
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save';
+        return;
+      }
+      urls.push(supabaseClient.storage.from('product-photos').getPublicUrl(path).data.publicUrl);
+    } else {
+      urls.push(slot.current);
     }
-    image_url = supabaseClient.storage.from('product-photos').getPublicUrl(path).data.publicUrl;
   }
 
-  const row = { name, brand, category, price, description, tag, fallback_icon, in_stock, featured, image_url };
+  const [image_url, image_url_2, image_url_3] = urls;
+
+  const row = { name, brand, category, price, description, tag, fallback_icon, in_stock, featured, image_url, image_url_2, image_url_3 };
 
   const { error } = editingProductId
     ? await supabaseClient.from('products').update(row).eq('id', editingProductId)

@@ -16,14 +16,37 @@ function escapeHtml(str) {
   }[c]));
 }
 
+function productImagesHtml(images, name) {
+  if (images.length === 0) return '';
+
+  if (images.length === 1) {
+    return `<img loading="lazy" src="${escapeHtml(images[0])}" alt="${escapeHtml(name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`;
+  }
+
+  const slides = images.map((url, i) =>
+    `<img loading="lazy" class="product-img-slide${i === 0 ? ' active' : ''}" src="${escapeHtml(url)}" alt="${escapeHtml(name)}">`
+  ).join('');
+
+  const dots = images.map((_, i) =>
+    `<button type="button" class="product-img-dot${i === 0 ? ' active' : ''}" onclick="event.stopPropagation();showProductImage(this,${i})" aria-label="Photo ${i + 1}"></button>`
+  ).join('');
+
+  return slides + `<div class="product-img-dots">${dots}</div>`;
+}
+
+function showProductImage(dotEl, index) {
+  const container = dotEl.closest('.product-img');
+  container.querySelectorAll('.product-img-slide').forEach((img, i) => img.classList.toggle('active', i === index));
+  container.querySelectorAll('.product-img-dot').forEach((d, i) => d.classList.toggle('active', i === index));
+}
+
 function productCardHtml(product, index) {
   const bg = CARD_BG_PALETTE[index % CARD_BG_PALETTE.length];
   const soldOut = !product.in_stock;
-  const hasImage = Boolean(product.image_url);
+  const images = [product.image_url, product.image_url_2, product.image_url_3].filter(Boolean);
+  const hasImage = images.length > 0;
 
-  const imgTag = hasImage
-    ? `<img loading="lazy" src="${escapeHtml(product.image_url)}" alt="${escapeHtml(product.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-    : '';
+  const imgTag = productImagesHtml(images, product.name);
 
   const tagHtml = soldOut
     ? `<span class="product-tag sold-out">Sold Out</span>`

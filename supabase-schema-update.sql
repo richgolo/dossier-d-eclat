@@ -88,6 +88,13 @@ update products set fallback_icon = 'fa-solid fa-heart' where fallback_icon !~ '
 -- ── FEATURED: lets the admin panel flag products for the homepage ────
 alter table products add column if not exists featured boolean not null default false;
 
+-- ── MULTI-PHOTO: up to 3 photos per product ──────────────────────────
+-- image_url stays the main/first photo. These two are optional extras —
+-- the shop page shows swipeable dots under the product photo when either
+-- is filled in.
+alter table products add column if not exists image_url_2 text;
+alter table products add column if not exists image_url_3 text;
+
 -- ── ORDERS: lightweight sales log, written at WhatsApp checkout ──────
 -- No customer identity is captured here (that still happens in the
 -- WhatsApp conversation itself) — this table exists purely so she can see

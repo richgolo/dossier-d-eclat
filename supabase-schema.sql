@@ -26,6 +26,8 @@ create table products (
   price numeric not null check (price >= 0),
   description text not null default '',
   image_url text,                       -- filename or full URL; leave blank to show the fallback_icon instead
+  image_url_2 text,                     -- optional 2nd photo, shown via dots on the shop card
+  image_url_3 text,                     -- optional 3rd photo, shown via dots on the shop card
   fallback_icon text not null default 'fa-solid fa-heart', -- Font Awesome class shown if image_url is blank or the image fails to load
   tag text,                             -- small badge e.g. "Bestseller" — leave blank for none
   in_stock boolean not null default true,

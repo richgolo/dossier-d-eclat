@@ -306,6 +306,44 @@
       transform: scale(1.06)
     }
 
+    .product-img-slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.35s, transform 0.4s
+    }
+
+    .product-img-slide.active {
+      opacity: 1
+    }
+
+    .product-img-dots {
+      position: absolute;
+      bottom: 0.7rem;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 0.35rem;
+      z-index: 3
+    }
+
+    .product-img-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.6);
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s
+    }
+
+    .product-img-dot.active {
+      background: #fff;
+      transform: scale(1.3)
+    }
+
     .product-icon-fallback {
       font-size: 3rem;
       display: flex;
