@@ -143,7 +143,7 @@ class DossierCart {
       if (btn) {
         e.preventDefault();
         const dataset = btn.dataset;
-        const source = btn.closest(".product-card, .quickview-panel");
+        const source = btn.closest(".product-card, .product-detail-panel");
 
         // Extract product details
         const product = {

@@ -139,117 +139,15 @@ async function loadProducts() {
   }
 }
 
-// ── QUICK VIEW ────────────────────────────────────────────
 // Tapping a product card (anywhere but the Add to Cart/Select Options
-// button or photo dots) opens a bigger-photo popup with the full
-// description, and — for a product with shades/flavors — a picker to
-// choose one before it can be added to the cart.
-
-let currentQuickViewProduct = null;
-let currentQuickViewVariants = [];
-let selectedVariant = null;
-
-function renderQuickViewMedia() {
-  const product = currentQuickViewProduct;
-  const soldOut = !product.in_stock;
-  const icon = product.fallback_icon || DEFAULT_FALLBACK_ICON;
-
-  // A shade with its own photo takes over the gallery; otherwise fall
-  // back to the product's own photos.
-  const images = (selectedVariant && selectedVariant.image_url)
-    ? [selectedVariant.image_url]
-    : [product.image_url, product.image_url_2, product.image_url_3].filter(Boolean);
-  const hasImage = images.length > 0;
-
-  document.getElementById('qvMedia').innerHTML = `
-    ${productImagesHtml(images, product.name)}
-    <div class="product-icon-fallback" style="display:${hasImage ? 'none' : 'flex'}" data-icon="${escapeHtml(icon)}"><i class="${escapeHtml(icon)}"></i></div>
-    ${soldOut ? '<span class="product-tag sold-out">Sold Out</span>' : (product.tag ? `<span class="product-tag">${escapeHtml(product.tag)}</span>` : '')}
-  `;
-}
-
-function renderQuickViewVariantPicker() {
-  const container = document.getElementById('qvVariants');
-  if (currentQuickViewVariants.length === 0) {
-    container.innerHTML = '';
-    return;
-  }
-  container.innerHTML = `
-    <p class="qv-variant-label">Shade: <strong>${escapeHtml(selectedVariant.label)}</strong>${!selectedVariant.in_stock ? ' (Sold Out)' : ''}</p>
-    <div class="qv-variant-options">
-      ${currentQuickViewVariants.map(v => `
-        <button type="button" class="qv-variant-btn${v.id === selectedVariant.id ? ' active' : ''}${!v.in_stock ? ' out-of-stock' : ''}" data-variant-id="${v.id}" title="${escapeHtml(v.label)}${!v.in_stock ? ' (Sold Out)' : ''}">
-          ${v.image_url ? `<img src="${escapeHtml(v.image_url)}" alt="${escapeHtml(v.label)}">` : `<span class="qv-variant-swatch-label">${escapeHtml(v.label.slice(0, 2))}</span>`}
-        </button>
-      `).join('')}
-    </div>
-  `;
-}
-
-function updateQvAddButton() {
-  const btn = document.getElementById('qvAddBtn');
-  const product = currentQuickViewProduct;
-  const soldOut = !product.in_stock || (selectedVariant ? !selectedVariant.in_stock : false);
-  btn.disabled = soldOut;
-  btn.textContent = soldOut ? 'Sold Out' : 'Add to Cart';
-  if (selectedVariant) {
-    btn.dataset.id = product.id + '-' + selectedVariant.id;
-    btn.dataset.variant = selectedVariant.label;
-  } else {
-    delete btn.dataset.id;
-    delete btn.dataset.variant;
-  }
-}
-
-function openQuickView(product) {
-  currentQuickViewProduct = product;
-  currentQuickViewVariants = variantsByProduct[product.id] || [];
-  selectedVariant = currentQuickViewVariants[0] || null;
-
-  renderQuickViewMedia();
-  renderQuickViewVariantPicker();
-
-  document.getElementById('qvBrand').textContent = product.brand;
-  document.getElementById('qvName').textContent = product.name;
-  document.getElementById('qvDesc').textContent = product.description;
-  document.getElementById('qvPrice').textContent = 'GHS ' + product.price;
-
-  updateQvAddButton();
-
-  document.getElementById('quickViewOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeQuickView() {
-  document.getElementById('quickViewOverlay').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-document.getElementById('qvVariants').addEventListener('click', (e) => {
-  const btn = e.target.closest('.qv-variant-btn');
-  if (!btn) return;
-  const variantId = Number(btn.dataset.variantId);
-  selectedVariant = currentQuickViewVariants.find(v => v.id === variantId) || selectedVariant;
-  renderQuickViewMedia();
-  renderQuickViewVariantPicker();
-  updateQvAddButton();
-});
-
+// button or photo dots) opens its full product page for the bigger
+// gallery, full description, and — for a product with shades/flavors —
+// the picker to choose one.
 document.getElementById('productsGrid').addEventListener('click', (e) => {
   if (e.target.closest('.add-to-cart-btn') || e.target.closest('.product-img-dot')) return;
   const card = e.target.closest('.product-card');
   if (!card) return;
-  const product = productsCache.find(p => String(p.id) === card.dataset.productId);
-  if (product) openQuickView(product);
-});
-
-document.getElementById('qvAddBtn').addEventListener('click', () => closeQuickView());
-document.getElementById('quickViewClose').addEventListener('click', closeQuickView);
-document.getElementById('quickViewOverlay').addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) closeQuickView();
-});
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeQuickView();
+  window.location.href = 'product.html?id=' + encodeURIComponent(card.dataset.productId);
 });
 
 loadProducts();

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Product — Dossier d'Éclat | Accra, Ghana</title>
+  <meta name="robots" content="noindex, follow">
+  <meta name="description" content="Shop curated beauty picks from Dossier d'Éclat — order via WhatsApp, delivered in Accra, Ghana.">
+
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <meta name="theme-color" content="#2C1810">
+  <link rel="manifest" href="site.webmanifest">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="cart.css">
+
+  <style>
+    /* FLOAT WA */
+    .float-wa {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 200;
+      background: #25D366;
+      color: white;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+      transition: all 0.3s
+    }
+
+    .float-wa:hover {
+      transform: scale(1.1)
+    }
+
+    /* PRODUCT DETAIL */
+    .pd-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 7rem 3rem 5rem;
+      min-height: 60vh
+    }
+
+    .pd-back {
+      display: inline-block;
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--pink-deep);
+      text-decoration: none;
+      margin-bottom: 2rem;
+      transition: color 0.3s
+    }
+
+    .pd-back:hover {
+      color: var(--brown)
+    }
+
+    .pd-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.5rem
+    }
+
+    @media (min-width: 800px) {
+      .pd-layout {
+        grid-template-columns: 1fr 1fr;
+        gap: 3.5rem;
+        align-items: start
+      }
+    }
+
+    .pd-main-img {
+      height: 380px;
+      border-radius: 20px;
+      background: var(--pink-light);
+      position: relative;
+      overflow: hidden
+    }
+
+    @media (min-width: 800px) {
+      .pd-main-img {
+        height: 480px
+      }
+    }
+
+    .pd-main-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover
+    }
+
+    .pd-thumbs {
+      display: flex;
+      gap: 0.7rem;
+      margin-top: 0.9rem;
+      flex-wrap: wrap
+    }
+
+    .pd-thumb {
+      width: 64px;
+      height: 64px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      padding: 0;
+      cursor: pointer;
+      background: var(--pink-light);
+      transition: border-color 0.2s, transform 0.2s
+    }
+
+    .pd-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover
+    }
+
+    .pd-thumb.active {
+      border-color: var(--brown);
+      transform: scale(1.05)
+    }
+
+    .pd-title {
+      font-size: 2rem;
+      margin-bottom: 0.8rem
+    }
+
+    .pd-desc {
+      font-size: 0.95rem;
+      margin-bottom: 1.6rem;
+      max-width: 480px
+    }
+
+    .pd-price {
+      font-size: 1.6rem
+    }
+
+    .pd-footer {
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem
+    }
+
+    .pd-footer .product-btn {
+      padding: 0.8rem 2.2rem;
+      font-size: 0.75rem
+    }
+
+    .pd-loading,
+    .pd-error {
+      text-align: center;
+      padding: 6rem 2rem;
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      font-style: italic;
+      color: var(--pink-deep)
+    }
+
+    .pd-error a {
+      display: inline-block;
+      margin-top: 1rem;
+      color: var(--brown)
+    }
+
+    /* SHADE/FLAVOR PICKER (shared visual language with the shop page) */
+    .qv-variant-label {
+      font-size: 0.8rem;
+      color: #8A6358;
+      margin-bottom: 0.7rem;
+      font-weight: 500
+    }
+
+    .qv-variant-label strong {
+      color: var(--brown)
+    }
+
+    .qv-variant-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem
+    }
+
+    .qv-variant-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 10px;
+      border: 2px solid transparent;
+      padding: 0;
+      overflow: hidden;
+      cursor: pointer;
+      background: var(--pink-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s, transform 0.2s
+    }
+
+    .qv-variant-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover
+    }
+
+    .qv-variant-btn.active {
+      border-color: var(--brown);
+      transform: scale(1.06)
+    }
+
+    .qv-variant-btn.out-of-stock {
+      opacity: 0.4;
+      cursor: not-allowed
+    }
+
+    .qv-variant-swatch-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--brown)
+    }
+
+    /* Reused product classes (kept in sync with shop.html's own copies) */
+    .product-icon-fallback {
+      font-size: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%
+    }
+
+    .product-tag {
+      position: absolute;
+      top: 0.8rem;
+      right: 0.8rem;
+      background: var(--brown);
+      color: var(--pink);
+      font-size: 0.58rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.7rem;
+      border-radius: 50px;
+      font-weight: 500;
+      z-index: 2
+    }
+
+    .product-tag.sold-out {
+      background: #8A6358
+    }
+
+    .product-brand {
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--pink-deep);
+      margin-bottom: 0.4rem;
+      font-weight: 500
+    }
+
+    .product-name {
+      font-family: var(--serif);
+      font-style: italic;
+      color: var(--brown);
+      line-height: 1.25
+    }
+
+    .product-desc {
+      color: #8A6358;
+      line-height: 1.65
+    }
+
+    .product-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between
+    }
+
+    .product-price {
+      font-family: var(--serif);
+      color: var(--brown);
+      font-weight: 600
+    }
+
+    .product-btn {
+      background: var(--brown);
+      color: var(--pink);
+      border: none;
+      border-radius: 50px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: var(--sans);
+      font-weight: 500;
+      transition: all 0.3s
+    }
+
+    .product-btn:hover {
+      background: var(--brown-light);
+      transform: scale(1.04)
+    }
+
+    .product-btn:disabled {
+      background: #C9B8B2;
+      cursor: not-allowed;
+      transform: none
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--brown);
+      padding: 3rem;
+      text-align: center;
+      border-top: 1px solid rgba(242, 196, 206, 0.1)
+    }
+
+    .footer-bottom-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      max-width: 1200px;
+      margin: 0 auto
+    }
+
+    .footer-bottom-strip p {
+      font-size: 0.72rem;
+      color: rgba(242, 196, 206, 0.3)
+    }
+
+    .footer-back {
+      font-family: var(--serif);
+      font-size: 1rem;
+      font-style: italic;
+      color: var(--pink-deep);
+      text-decoration: none;
+      transition: color 0.3s
+    }
+
+    .footer-back:hover {
+      color: var(--pink)
+    }
+  </style>
+</head>
+
+<body>
+
+  <a href="https://wa.me/233551411783" target="_blank" class="float-wa">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="nav-logo">Dossier d'Eclat</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="index.html#about">About</a></li>
+      <li><a href="shop.html" class="active">Shop</a></li>
+      <li><a href="index.html#reviews">Reviews</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="nav-cart-toggle" id="cartToggleBtn" aria-label="View Cart">
+        <span class="cart-icon-wrapper"><i class="fa-solid fa-bag-shopping"></i></span>
+        <span class="cart-badge" id="cartBadge" style="display:none">0</span>
+      </button>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html" onclick="closeMenu()">Home</a>
+    <a href="index.html#about" onclick="closeMenu()">About</a>
+    <a href="shop.html" onclick="closeMenu()">Shop</a>
+    <a href="index.html#reviews" onclick="closeMenu()">Reviews</a>
+    <a href="index.html#contact" onclick="closeMenu()">Contact</a>
+    <a href="#" id="mobileCartToggle" onclick="closeMenu()" class="mobile-cart-link"><i class="fa-solid fa-bag-shopping"></i> View Cart <span
+        id="mobileCartBadge">(0)</span></a>
+    <a href="https://wa.me/233551411783" target="_blank" style="color:#25D366"><i class="fa-brands fa-whatsapp"></i> WhatsApp: 0551411783</a>
+  </div>
+
+  <!-- PRODUCT DETAIL -->
+  <section class="pd-section">
+    <a href="shop.html" class="pd-back">← Back to Shop</a>
+
+    <div class="pd-loading" id="pdLoading">Loading…</div>
+    <div class="pd-error" id="pdError" style="display:none">
+      <p>We couldn't find that product.</p>
+      <a href="shop.html">← Back to Shop</a>
+    </div>
+
+    <div class="pd-layout product-detail-panel" id="pdLayout" style="display:none">
+      <div class="pd-gallery">
+        <div class="product-img pd-main-img" id="pdMainImg"></div>
+        <div class="pd-thumbs" id="pdThumbs"></div>
+      </div>
+      <div class="pd-info">
+        <p class="product-brand" id="pdBrand"></p>
+        <h1 class="product-name pd-title" id="pdName"></h1>
+        <p class="product-desc pd-desc" id="pdDesc"></p>
+        <div id="pdVariants"></div>
+        <div class="product-footer pd-footer">
+          <span class="product-price pd-price" id="pdPrice"></span>
+          <button class="product-btn add-to-cart-btn" id="pdAddBtn">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-bottom-strip">
+      <a href="index.html" class="footer-back">← Back to Home</a>
+      <p>© 2026 Dossier d'Eclat · All rights reserved · Built with <i class="fa-solid fa-heart" style="color:#F2C4CE"></i></p>
+      <a href="https://wa.me/233551411783" target="_blank"
+        style="font-size:0.75rem;color:#25D366;text-decoration:none;font-weight:500"><i class="fa-brands fa-whatsapp"></i> 0551 411 783</a>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="product.js"></script>
+
+  <!-- CART DRAWER -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <div class="cart-drawer" id="cartDrawer">
+    <div class="cart-header">
+      <h2>Your Cart</h2>
+      <button class="cart-close" id="cartClose" aria-label="Close cart">&times;</button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <!-- Items will be dynamically loaded here by cart.js -->
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total-row">
+        <span>Total:</span>
+        <span class="cart-total-price" id="cartTotalPrice">GHS 0</span>
+      </div>
+      <button class="cart-checkout-btn" id="cartCheckoutBtn">
+        <span>Checkout via WhatsApp</span>
+        <span class="cart-checkout-icon"><i class="fa-brands fa-whatsapp"></i></span>
+      </button>
+      <p class="cart-payment-note">We accept MTN Mobile Money, Telecel Cash & AirtelTigo Money</p>
+    </div>
+  </div>
+
+  <script src="cart.js"></script>
+</body>
+
+</html>
