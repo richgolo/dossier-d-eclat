@@ -64,9 +64,9 @@ create policy "Logged-in users can delete products"
 -- admin panel's Reviews tab.
 create table reviews (
   id bigint generated always as identity primary key,
-  name text not null,
+  name text not null check (char_length(name) between 1 and 60),
   stars int not null check (stars between 1 and 5),
-  text text not null,
+  text text not null check (char_length(text) between 1 and 400),
   approved boolean not null default false,
   created_at timestamptz not null default now()
 );
@@ -98,8 +98,8 @@ create policy "Logged-in users can delete reviews"
 -- tab.
 create table orders (
   id bigint generated always as identity primary key,
-  items jsonb not null,
-  total numeric not null,
+  items jsonb not null check (jsonb_typeof(items) = 'array' and jsonb_array_length(items) > 0),
+  total numeric not null check (total >= 0),
   status text not null default 'new' check (status in ('new', 'completed', 'cancelled')),
   created_at timestamptz not null default now()
 );

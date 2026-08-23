@@ -128,6 +128,23 @@ create policy "Logged-in users can update orders"
   to authenticated
   using (true);
 
+-- ── VALIDATION HARDENING: cap what the public insert policies accept ─
+-- The anon key can insert into reviews/orders directly via the Supabase
+-- REST API, bypassing whatever the website's JS checks — these constraints
+-- enforce sane limits at the database itself so a scripted/bot submission
+-- can't stuff huge text blobs or malformed rows into either table.
+alter table reviews drop constraint if exists reviews_name_length_check;
+alter table reviews add constraint reviews_name_length_check check (char_length(name) between 1 and 60);
+
+alter table reviews drop constraint if exists reviews_text_length_check;
+alter table reviews add constraint reviews_text_length_check check (char_length(text) between 1 and 400);
+
+alter table orders drop constraint if exists orders_total_check;
+alter table orders add constraint orders_total_check check (total >= 0);
+
+alter table orders drop constraint if exists orders_items_check;
+alter table orders add constraint orders_items_check check (jsonb_typeof(items) = 'array' and jsonb_array_length(items) > 0);
+
 drop policy if exists "Logged-in users can delete orders" on orders;
 create policy "Logged-in users can delete orders"
   on orders for delete

@@ -1739,6 +1739,7 @@
         <label class="review-field-label" for="reviewText">Your Review</label>
         <textarea class="review-input review-textarea" id="reviewText" placeholder="Tell us about your experience…"
           maxlength="400"></textarea>
+        <input type="text" id="reviewWebsite" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
         <p class="review-error" id="reviewError"></p>
         <button class="review-submit" onclick="submitReview()">Submit Review <i class="fa-solid fa-heart"></i></button>
         <div class="review-success" id="reviewSuccess">Thank you for your review! It'll appear here shortly, once approved. <i class="fa-solid fa-heart"></i></div>
@@ -1846,12 +1847,17 @@
     // Review system
     let selectedStars = 0;
 
+    let reviewFormOpenedAt = 0;
+
     function toggleReviewForm() {
       const form = document.getElementById('reviewForm');
       const open = form.style.display === 'block';
       form.style.display = open ? 'none' : 'block';
       document.getElementById('reviewSuccess').style.display = 'none';
-      if (!open) form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (!open) {
+        reviewFormOpenedAt = Date.now();
+        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
 
     document.querySelectorAll('#starPicker span').forEach(star => {
@@ -1867,8 +1873,20 @@
     async function submitReview() {
       const name = document.getElementById('reviewName').value.trim();
       const text = document.getElementById('reviewText').value.trim();
+      const honeypot = document.getElementById('reviewWebsite').value;
       const errorEl = document.getElementById('reviewError');
       errorEl.style.display = 'none';
+
+      // Bot check: a hidden field real visitors never see/fill, and a
+      // minimum time-to-submit no human fills a form in. Fail silently
+      // (fake success) so scripted bots don't learn to route around it.
+      if (honeypot || Date.now() - reviewFormOpenedAt < 1500) {
+        document.getElementById('reviewName').value = '';
+        document.getElementById('reviewText').value = '';
+        selectedStars = 0; highlightStars(0);
+        document.getElementById('reviewSuccess').style.display = 'block';
+        return;
+      }
 
       if (!name || !text || !selectedStars) {
         errorEl.textContent = 'Please fill in your name, review, and select a star rating.';

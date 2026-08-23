@@ -1,3 +1,9 @@
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
 class DossierCart {
   constructor() {
     this.items = [];
@@ -288,28 +294,28 @@ class DossierCart {
       let html = "";
       this.items.forEach(item => {
         const itemSubtotal = item.price * item.quantity;
-        const imgTag = item.img 
-          ? `<img src="${item.img}" alt="${item.name}" class="cart-item-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        const imgTag = item.img
+          ? `<img src="${escapeHtml(item.img)}" alt="${escapeHtml(item.name)}" class="cart-item-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
           : "";
-        
+
         html += `
-          <div class="cart-item" data-item-id="${item.id}">
+          <div class="cart-item" data-item-id="${escapeHtml(item.id)}">
             <div class="cart-item-img-container">
               ${imgTag}
-              <div class="cart-item-fallback-icon" style="${item.img ? 'display:none' : 'display:flex'}"><i class="${item.fallbackIcon}"></i></div>
+              <div class="cart-item-fallback-icon" style="${item.img ? 'display:none' : 'display:flex'}"><i class="${escapeHtml(item.fallbackIcon)}"></i></div>
             </div>
             <div class="cart-item-details">
-              <span class="cart-item-brand">${item.brand}</span>
-              <span class="cart-item-name">${item.name}</span>
+              <span class="cart-item-brand">${escapeHtml(item.brand)}</span>
+              <span class="cart-item-name">${escapeHtml(item.name)}</span>
               <span class="cart-item-price-unit">GHS ${item.price} each</span>
               <div class="cart-item-qty">
-                <button class="qty-btn minus" data-id="${item.id}">-</button>
+                <button class="qty-btn minus" data-id="${escapeHtml(item.id)}">-</button>
                 <span class="qty-num">${item.quantity}</span>
-                <button class="qty-btn plus" data-id="${item.id}">+</button>
+                <button class="qty-btn plus" data-id="${escapeHtml(item.id)}">+</button>
               </div>
             </div>
             <div class="cart-item-right">
-              <button class="cart-item-remove" data-id="${item.id}" aria-label="Remove item">
+              <button class="cart-item-remove" data-id="${escapeHtml(item.id)}" aria-label="Remove item">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
               </button>
               <span class="cart-item-total">GHS ${itemSubtotal}</span>
