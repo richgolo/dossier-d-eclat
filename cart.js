@@ -97,6 +97,41 @@ class DossierCart {
     return this.items.reduce((sum, item) => sum + item.quantity, 0);
   }
 
+  // Clones the product photo that was just added and flies it toward the
+  // nav cart icon — purely decorative, so it no-ops quietly (no error, no
+  // effect on the cart itself) if GSAP didn't load or there's no photo to
+  // animate (icon-fallback products, or an image that failed to load).
+  flyToCart(imgEl) {
+    if (!window.gsap || !imgEl) return;
+    if (getComputedStyle(imgEl).display === "none") return;
+
+    const cartIcon = document.querySelector(".cart-icon-wrapper");
+    if (!cartIcon) return;
+
+    const startRect = imgEl.getBoundingClientRect();
+    const endRect = cartIcon.getBoundingClientRect();
+    if (!startRect.width || !startRect.height) return;
+
+    const flyer = imgEl.cloneNode(true);
+    flyer.className = "cart-fly-img";
+    flyer.removeAttribute("onerror");
+    Object.assign(flyer.style, {
+      top: startRect.top + "px",
+      left: startRect.left + "px",
+      width: startRect.width + "px",
+      height: startRect.height + "px"
+    });
+    document.body.appendChild(flyer);
+
+    const dx = (endRect.left + endRect.width / 2) - (startRect.left + startRect.width / 2);
+    const dy = (endRect.top + endRect.height / 2) - (startRect.top + startRect.height / 2);
+
+    gsap.timeline({ onComplete: () => flyer.remove() })
+      .to(flyer, { x: dx * 0.35, y: dy * 0.6 - 70, scale: 0.75, duration: 0.35, ease: "power1.out" })
+      .to(flyer, { x: dx, y: dy, scale: 0.1, opacity: 0.3, duration: 0.4, ease: "power2.in" })
+      .call(() => this.animateBadge());
+  }
+
   animateBadge() {
     const badges = document.querySelectorAll("#cartBadge, #mobileCartBadge");
     badges.forEach(badge => {
@@ -156,7 +191,10 @@ class DossierCart {
           variant: dataset.variant || ""
         };
 
+        const activeImg = source?.querySelector(".product-img-slide.active") || source?.querySelector(".product-img img");
+
         this.addItem(product);
+        this.flyToCart(activeImg);
 
         // Animate button feedback
         const originalText = btn.innerHTML;
