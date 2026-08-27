@@ -301,20 +301,7 @@
       text-align: center;
       position: relative;
       z-index: 2;
-      animation: fadeUp 1.3s ease forwards;
       padding: 0 1.5rem
-    }
-
-    @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(35px)
-      }
-
-      to {
-        opacity: 1;
-        transform: none
-      }
     }
 
     .hero-eyebrow {
@@ -1282,17 +1269,9 @@
       opacity: 1
     }
 
-    /* REVEAL */
-    .reveal {
-      opacity: 0;
-      transform: translateY(28px);
-      transition: opacity 0.75s ease, transform 0.75s ease
-    }
-
-    .reveal.visible {
-      opacity: 1;
-      transform: none
-    }
+    /* REVEAL — sections start fully visible by default (see the GSAP
+       block near the closing scripts); this is only a fallback shape
+       for browsers that somehow run neither. */
 
     /* RESPONSIVE */
     @media(max-width:1000px) {
@@ -1835,14 +1814,42 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="main.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
   <script src="featured.js"></script>
   <script>
-    // Scroll reveal
-    const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible') }), { threshold: 0.08 });
-    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+    // Entrance/scroll animation — degrades gracefully if GSAP fails to load
+    // or the visitor has requested reduced motion: every element below is
+    // fully visible by default in CSS, so worst case is "no animation",
+    // never "content stuck invisible".
+    if (window.gsap && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.timeline({ defaults: { ease: 'power3.out' } })
+        .from('.hero-eyebrow', { opacity: 0, y: 18, duration: 0.7 })
+        .from('.hero-title', { opacity: 0, y: 50, duration: 1.1 }, '-=0.45')
+        .from('.hero-title span', { opacity: 0, y: 20, duration: 0.8 }, '-=0.55')
+        .from('.hero-tagline', { opacity: 0, y: 16, duration: 0.7 }, '-=0.45')
+        .from('.hero-ctas', { opacity: 0, y: 16, duration: 0.7 }, '-=0.4');
+
+      if (window.ScrollTrigger) {
+        gsap.registerPlugin(ScrollTrigger);
+        // The homepage's shop-preview section fades itself in once its
+        // content actually loads (see featured.js) — a ScrollTrigger set
+        // up now, while it's still display:none, would measure it wrong.
+        gsap.utils.toArray('.reveal').forEach(section => {
+          if (section.id === 'shopPreviewSection') return;
+          gsap.from(section, {
+            opacity: 0,
+            y: 40,
+            duration: 1,
+            ease: 'power2.out',
+            scrollTrigger: { trigger: section, start: 'top 85%', toggleActions: 'play none none none' }
+          });
+        });
+      }
+    }
 
     // Review system
     let selectedStars = 0;

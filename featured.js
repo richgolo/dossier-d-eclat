@@ -60,7 +60,14 @@ async function loadFeatured() {
 
   grid.innerHTML = data.map(previewCardHtml).join('');
   section.style.display = '';
-  section.classList.add('visible'); // bypass scroll-triggered reveal — content only exists once loaded
+
+  // A plain fade-in rather than a scroll-triggered one — this section's
+  // content only exists once this fetch resolves, often well after the
+  // page's other ScrollTrigger reveals were already set up, so a
+  // ScrollTrigger created now could measure a stale position for it.
+  if (window.gsap && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    gsap.from(section, { opacity: 0, y: 30, duration: 0.9, ease: 'power2.out' });
+  }
 }
 
 loadFeatured();
